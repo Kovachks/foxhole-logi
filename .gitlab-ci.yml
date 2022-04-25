@@ -1,0 +1,72 @@
+image: docker:19.03.13
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+
+services:
+  - docker:19.03.13-dind
+
+stages:
+  - docker
+  - pages
+  - deploy
+
+push:
+  stage: docker
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    - branches
+    - tags
+
+pages:
+  stage: pages
+  image:
+    name: alpine/helm
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - mkdir -p ./public
+    - "echo \"User-Agent: *\nDisallow: /\" > ./public/robots.txt"
+    - helm package --version $CI_COMMIT_TAG helm/ --destination ./public
+    - helm repo index --url "${CI_PAGES_URL}" ./public
+  artifacts:
+    paths:
+      - public
+  only:
+    - tags
+
+deploy-dev:
+  image: quay.io/roboll/helmfile:helm3-v0.125.5
+  stage: deploy
+  variables:
+    KUBE_CONFIG_B64: ${KUBE_CONFIG_B64}
+    VALUES_DEV: ${VALUES_DEV}
+  script:
+    - mkdir /root/.kube
+    - echo ${KUBE_CONFIG_B64} | base64 -d > /root/.kube/config
+    - echo ${VALUES_DEV} | base64 -d > helm/values-dev.yaml
+    - cd helm
+    - helm upgrade --install --set image.tag=master --namespace fhghq fhghg-dev . --values values-dev.yaml
+  only:
+    - master
+
+deploy-prod:
+  image: quay.io/roboll/helmfile:helm3-v0.125.5
+  stage: deploy
+  variables:
+    KUBE_CONFIG_B64: ${KUBE_CONFIG_B64}
+    VALUES_PROD_LIVE_1: ${VALUES_PROD_LIVE_1}
+    VALUES_PROD_LIVE_2: ${VALUES_PROD_LIVE_2}
+  script:
+    - mkdir /root/.kube
+    - echo ${KUBE_CONFIG_B64} | base64 -d > /root/.kube/config
+    - echo "writing values file"
+    - echo "${VALUES_PROD_LIVE_1}" | base64 -d > helm/values-live-1.yaml
+    - echo ${VALUES_PROD_LIVE_2} | base64 -d > helm/values-live-2.yaml
+    - cd helm
+    - helm upgrade --install --namespace fhghq fhghg-live-1 . --values values-live-1.yaml --set image.tag=$CI_COMMIT_TAG
+    - helm upgrade --install --namespace fhghq fhghg-live-2 . --values values-live-2.yaml --set image.tag=$CI_COMMIT_TAG
+  only:
+    - tags
