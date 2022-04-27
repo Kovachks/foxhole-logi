@@ -1,6 +1,10 @@
 // Here we keep all functions related to database requests
 const SQLite = require('better-sqlite3');
-
+const {
+  userRoom,
+  users,
+  rooms
+} = require('./src/api/controllers')
 const conf = require('./conf/config')
 const logger = conf.logger
 const sql = SQLite(conf.sqlLite.fileNameGiven);
@@ -60,7 +64,7 @@ function UpdateMapList() {
         regionNames = obj;
       }
       catch (err) {
-        console.log(err);
+        logger.error(err)
       }
     }
   };
@@ -70,48 +74,52 @@ UpdateMapList(); // Getting the map list on launch.
 setInterval(UpdateMapList, 60000/* 100000 */); // Updating map list every minute.
 
 // Checks if user is logged on
-exports.logincheck = function logincheck(request) {
-  // console.log(request.headers);
+exports.logincheck = async (request) => {
   if (request.headers.cookie == undefined) { return false; }
   if (!request.headers.cookie.includes('salt')) { return false; }
   const cookiestring = request.headers.cookie;
   const id = cookiestring.substring(cookiestring.indexOf(' steamid=') + 9, cookiestring.indexOf(' steamid=') + 26).replace(';', '');
   let salt = cookiestring.substring(cookiestring.indexOf(' salt=') + 6, cookiestring.indexOf(' salt=') + 15).replace(';', '');
-  const query = sql.prepare('SELECT * FROM users WHERE id= ?;').get(id);
-  // console.log("Validating id "+query.id+" | "+id);
-  // console.log("Validating salt "+query.salt+" | "+salt);
-  //console.log(id, salt, query);
-  if (query == undefined) {
+
+  const query = await users.getUserBySteamId(id)
+
+  if (query === undefined) {
     return false;
   }
+
   query.salt = query.salt.slice(0, 9);
   salt = salt.slice(0, 9);
-  // console.log(id==query.id)
-  if (query == undefined) { return false; }
-  if (id == query.id && salt == query.salt) {
+  
+  if (query === undefined) {
+
+    return false
+  }
+
+  if (id === query.steam_id && salt === query.salt) {
     return true;
-  } return false;
+  } 
+
+  return false;
 };
 
 exports.offlinecheck = function (online, io) {
-  const users = sql.prepare("SELECT * FROM users WHERE id LIKE 'anonymous%';").all();
+  const anonUsers = users.getAnonymousUsers()
+
   const now = new Date();
   for (let i = 0; i < users.length; i++) {
-    if (users[i].id != 'anonymous') {
-    // console.log(users[i].id);
-      if (online.includes(users[i].id)) {
-        sql.prepare('UPDATE users SET avatar = ? WHERE id = ?;').run(new Date().toString(), users[i].id);
+    if (anonUsers[i].id != 'anonymous') {
+      if (online.includes(anonUsers[i].id)) {
+        sql.prepare('UPDATE users SET avatar = ? WHERE id = ?;').run(new Date().toString(), anonUsers[i].id);
       } else {
         const timediff = now - new Date(users[i].avatar);
         if (timediff > 1800000) {
-          // console.log("Deleting user "+users[i].id+" | "+users[i].name);
-          const rooms = sql.prepare('SELECT * FROM userglobal where userid = ?').all(users[i].id);
-          sql.prepare('DELETE FROM userglobal WHERE userid = ?').run(users[i].id);
+          const rooms = sql.prepare('SELECT * FROM user_room where userid = ?').all(anonUsers[i].id);
+          sql.prepare('DELETE FROM user_room WHERE userid = ?').run(anonUsers[i].id);
 
           for (let j = 0; j < rooms.length; j++) {
-            io.to(rooms[j].globalid).emit('leaveroomroom', users[i].id);
+            io.to(rooms[j].globalid).emit('leaveroomroom', anonUsers[i].id);
           }
-          sql.prepare('DELETE FROM users WHERE id = ?').run(users[i].id);
+          users.deleteUser(anonUsers[i].id)
         }
       }
     }
@@ -120,71 +128,97 @@ exports.offlinecheck = function (online, io) {
 
 // Check if this user already exists in the database
 exports.existscheck = function (id) {
-  const result = sql.prepare('SELECT * FROM users WHERE id= ?;').get(id);
-  // console.log(result);
-  if (result == undefined) {
+  const result = users.getUserBySteamId(id)
+  if (!result) {
     return false;
   } return true;
 };
 
 // Gets account from the database
 exports.getaccount = function (id) {
-  const result = sql.prepare('SELECT * FROM users WHERE id= ?;').get(id);
-  // console.log(result);
+  const result = users.getUserBySteamId(id)
   return result;
 };
 
 // Gets membership of a user
-exports.getmembership = function (id, globalid) {
-  const result1 = sql.prepare('SELECT * FROM global WHERE id = ?;').get(globalid);
-  if (result1 == undefined) { return 8; }
-  const result = sql.prepare('SELECT rank FROM userglobal WHERE userid = ? AND globalid = ?;').get(id, globalid);
-  if (result == undefined) { return 7; }
-  return result.rank;
-};
+exports.getmembership = async (id, roomId) => {
+  const { user_rank } = await userRoom.getUserRoomByUserAndRoom(id, roomId)
+
+  if (user_rank === undefined) {
+    return 7
+  }
+
+  return user_rank
+}
 
 // Get info on rooms connected to a user
-exports.getrooms = function (id) {
-  const rooms = sql.prepare('SELECT * FROM userglobal WHERE userid = ?;').all(id);
-  const globalinfo = [];
-  // console.log(rooms);
-  if (rooms.length > 0) {
-    for (let i = 0; i < rooms.length; i++) {
-      const room = exports.getroominfo(rooms[i].globalid);
-      // console.log(room)
-      const settings = JSON.parse(room.settings);
-      const object = {
-        roomname: settings.name, admin: room.adminname, adminid: room.adminid, rank: rooms[i].rank, globalid: rooms[i].globalid,
-      };
-      // console.log(object);
-      globalinfo.push(object);
+exports.getrooms = async (id) => {
+  try {
+    const rooms = await userRoom.getUserRoomByUser(id)
+
+    if (rooms && rooms.length > 0) {
+      const globalInfo = await Promise.all(
+        rooms.map(async room => {
+          const {
+            user_rank: rank,
+            room_id
+          } = room
+
+          const {
+            settings,
+            adminname,
+            room_link,
+            id,
+            adminid
+          } = await exports.getroominfo(room_id)
+
+          const { name } = JSON.parse(settings)
+
+          return {
+            roomname: name,
+            admin: adminname,
+            adminid,
+            room_link,
+            rank,
+            room_id
+          }  
+        })
+      )
+
+      return globalInfo
+    } else {
+      return {}
     }
+  } catch (e) {
+    logger.error(e)
+    throw new Error(e)  
   }
-  return globalinfo;
-};
+}
 
 // Just gets the names of the rooms the user is in
 exports.getroomsshort = function (id) {
-  const rooms = sql.prepare('SELECT * FROM userglobal WHERE userid = ?;').all(id);
+  const rooms = sql.prepare('SELECT * FROM user_room WHERE userid = ?;').all(id);
   return rooms;
-};
+}
 
 // Get meta info on room
-exports.getroominfo = function (id) {
-  // console.log(id);
-  const result = sql.prepare('SELECT * FROM global WHERE id = ?;').get(id);
-  if (result != undefined) {
-    const adminname = sql.prepare('SELECT * FROM users WHERE id = ?;').get(result.admin).name;
+exports.getroominfo = async (id) => {
+  const result = await rooms.getRoomById(id)
 
-    const packet = { adminname, adminid: result.admin, settings: result.settings };
+  if (result != undefined) {
+    const { admin, settings, room_link } = result
+    const { name: adminname } = await users.getUserBySteamId(admin)
+    const packet = { adminname, adminid: admin, settings, room_link }
+
     return packet;
-  } return false;
-};
+  } 
+  
+  return false;
+}
 
 // Get private info on room
 exports.getprivateroominfo = function (id) {
   const result = sql.prepare('SELECT * FROM global WHERE id = ?;').get(id);
-  // console.log(result)
   const refinery = parse(result.refinery);
   const production = parse(result.production);
   const storage = parse(result.storage);
@@ -201,52 +235,53 @@ exports.getprivateroominfo = function (id) {
   const events = parse(result.events);
   return {
     refinery, production, storage, stockpiles, techtree, requests, fobs, misc, arty, squads, logi, events,
-  };
-};
+  }
+}
+
 exports.getallevents = function () {
 
   const events = sql.prepare('select * from events order by date desc limit 400').all();
   return { events };
-};
+}
+
 // Create a room
-exports.createroom = function (id, admin, settings) {
-  const insertroom = sql.prepare("INSERT INTO global (id, admin, settings, techtree,refinery, production, storage, stockpiles,fobs, requests, misc, arty,squads,logi,events) VALUES (@id, @admin, @settings, '', '', '', '', '', '', '', '', '', @squads,  '','[]');");
-  settings = JSON.stringify(settings);
+exports.createroom = async (id, admin, settings) => {
   const squads = { vehicles: {}, squads: [{ icon: 0, name: 'New Squad', users: [admin] }] };
-  const e = {
-    id,
-    admin,
-    settings,
-    squads: JSON.stringify(squads),
-  };
+  const body = [
+    id, admin, JSON.stringify(settings), JSON.stringify(squads)
+  ]
+
   if (admin.includes('anonymous')) {
-    e.admin = 'anonymous';
+    e.admin = 'anonymous'
   }
-  // console.log(e)
-  insertroom.run(e);
-  exports.insertrelation.run(e.admin + id, e.admin, id, 1, "[0,0]");
+
+  // insertroom.run(e)
+  const result = await rooms.postRoom(body)
+
+  userRoom.postUserRoom([admin, result.insertId, 1, "[0,0]"])
+  // exports.insertrelation.run(e.admin + id, e.admin, id, 1, "[0,0]");
   if (admin.includes('anonymous')) {
-    exports.insertrelation.run(admin + id, admin, id, 3, "[0,0]");
+    userRoom.postUserRoom([admin, result.id, id, 3, "[0,0]"])
+    // exports.insertrelation.run(admin + id, admin, id, 3, "[0,0]");
   }
-};
+}
 
 // Checks password
 exports.checkpassword = function (id, password) {
   let result = sql.prepare('SELECT settings FROM global WHERE id = ?;').get(id);
-  result = JSON.parse(result.settings);
-  // console.log(password);
-  // console.log(result.password);
+  result = JSON.parse(result.settings)
+
   if (password == result.password) {
     return true;
   }
-  return false;
 
-};
+  return false;
+}
 
 // Leave a room
 exports.leaveroom = function (id, globalid) {
   const rank = exports.getmembership(id, globalid);
-  // console.log("exports rank: "+rank);
+
   if (rank != 6) {
     deleterelation.run(id, globalid);
     // discordbot.leaveroom(id,globalid);
@@ -256,28 +291,29 @@ exports.leaveroom = function (id, globalid) {
       exports.deleteroom(globalid);
     }
   }
-};
+}
 
 // Delete a room
 exports.deleteroom = function (id) {
-  sql.prepare('DELETE FROM userglobal WHERE globalid = ?').run(id);
+  sql.prepare('DELETE FROM user_room WHERE globalid = ?').run(id);
   sql.prepare('DELETE FROM global WHERE id = ?').run(id);
-};
+}
 
 // Get members of a room
-exports.getroomusers = function (id) {
-  const users = sql.prepare('SELECT users.id, users.name, users.avatar, userglobal.rank, userglobal.role FROM users INNER JOIN userglobal WHERE users.id=userglobal.userid AND userglobal.globalid= ? ORDER BY (userglobal.rank) ASC;').all(id);
-  // console.log(users);
-  return users;
-};
+exports.getroomusers = async (id) => {
+  const results = await userRoom.getUserRoomByRoomId(id)
+  return results
+}
+
 // Gets data of a user that requests access
 exports.getrequester = function (id) {
-  const user = sql.prepare('SELECT * FROM users WHERE id = ?;').get(id);
+  const user = users.getUserBySteamId(id)
   const packet = {
     id: user.id, name: user.name, avatar: user.avatar, rank: 5,
-  };
+  }
+
   return packet;
-};
+}
 /*    PortBase(4)
 
     StaticBase1(5)
@@ -376,9 +412,8 @@ exports.hailnewking = function (id, newadmin, globalid) {
   const admin = (id == exports.getroominfo(globalid).adminid);
   const membership = exports.getmembership(newadmin, globalid);
   if (admin && (membership < 7)) {
-  // console.log("newadmin = "+newadmin+", oldadmin = "+id+", globalid"+globalid);
-    sql.prepare('UPDATE userglobal SET rank = 1 WHERE userid = ? AND globalid =?;').run(newadmin, globalid)
-    sql.prepare('UPDATE userglobal SET rank = 2 WHERE userid = ? AND globalid =?;').run(id, globalid)
+    sql.prepare('UPDATE user_room SET rank = 1 WHERE userid = ? AND globalid =?;').run(newadmin, globalid)
+    sql.prepare('UPDATE user_room SET rank = 2 WHERE userid = ? AND globalid =?;').run(id, globalid)
     sql.prepare('UPDATE global SET admin = ? WHERE id = ?;').run(newadmin, globalid)
     socket.hailnewking(newadmin, globalid);
     return true;
@@ -394,9 +429,7 @@ exports.changetech = function (packet) {
 
 // Creates/updates an object
 exports.updateObject = function (packet) {
-// console.log(packet)
   const global = sql.prepare('SELECT * FROM global WHERE id = ?').get(packet.globalid);
-  // console.log(global);
   if (packet.type.includes('misc')) {
     let misc = {};
     if (global.misc != '') {
@@ -422,7 +455,6 @@ exports.updateObject = function (packet) {
 
 // Deletes logi request
 exports.deleteObject = function (packet) {
-// console.log(packet)
   const global = sql.prepare('SELECT * FROM global WHERE id = ?').get(packet.globalid);
   if (packet.type.includes('misc')) {
     let misc = {};
@@ -448,7 +480,6 @@ exports.deleteObject = function (packet) {
 };
 // Adds arty calculations
 exports.addArtyResult = function (packet) {
-// console.log(packet)
   const global = sql.prepare('SELECT arty FROM global WHERE id = ?').get(packet.globalid);
   if (global.arty == '') { global.arty = []; } else {
     global.arty = JSON.parse(global.arty);
@@ -472,7 +503,6 @@ exports.updateSquads = function (packet) {
   }
   global.squads[packet.type] = packet.data;
   global.squads = JSON.stringify(global.squads);
-  // console.log("Updating squads",global.squads)
   // let squads = JSON.stringify(packet.squads);
   sql.prepare('UPDATE global SET squads = ? WHERE id = ?;').run(global.squads, packet.globalid);
 };
@@ -480,7 +510,6 @@ exports.updateSquads = function (packet) {
 
 // Adds a private event
 exports.submitEvent = function (packet) {
-// console.log(packet)
   const global = sql.prepare('SELECT * FROM global WHERE id = ?').get(packet.globalid);
   switch (packet.type) {
     case 0:// TECH EVENT
@@ -495,7 +524,6 @@ exports.submitEvent = function (packet) {
   if (events.length > 400) {
     events = events.splice(1);
   }
-  // console.log(packet)
   events = JSON.stringify(events);
   sql.prepare('UPDATE global SET events = ? WHERE id = ?').run(events, packet.globalid);
 };
@@ -517,7 +545,7 @@ exports.toggleSecure = function (globalid, data) {
   settings = JSON.stringify(settings);
   sql.prepare('UPDATE global SET settings = ? WHERE id = ?').run(settings, globalid);
   if (data == 1) {
-    sql.prepare('DELETE FROM userglobal WHERE userid LIKE "anonymous%" AND globalid = ?;').run(globalid);
+    sql.prepare('DELETE FROM user_room WHERE userid LIKE "anonymous%" AND globalid = ?;').run(globalid);
     const users = exports.getroomusers(globalid);
     return users;
   }
@@ -565,15 +593,14 @@ exports.deleteSettings = function (globalid, type) {
   }
   delete settings[type];
   settings = JSON.stringify(settings);
-  // console.log("Deleting optimer")
-  // console.log(settings)
+
   sql.prepare('UPDATE global SET settings = ? WHERE id = ?').run(settings, globalid);
 };
 
 exports.getRoomByToken = function (token, link) {
   const text = `%"token":"${token}"%`;
   const global = sql.prepare('SELECT * FROM global WHERE settings LIKE ?;').get(text);
-  // console.log(global)
+
   if (global != undefined) {
     global.settings = JSON.parse(global.settings);
     global.settings.link = link;
@@ -592,12 +619,11 @@ exports.getRoomFromDiscordChannel = function (channelid) {
 
 // Adds chat messsage
 exports.addMessage = function (packet, category, globalid) {
-// console.log(packet)
-  const global = sql.prepare('SELECT * FROM global WHERE id = ?').get(globalid);
-  // console.log(global);
-  let misc = {};
+  const global = sql.prepare('SELECT * FROM global WHERE id = ?').get(globalid)
+  let misc = {}
+
   if (global.misc != '') {
-    misc = JSON.parse(global.misc);
+    misc = JSON.parse(global.misc)
   }
   if (misc.chat == undefined) {
     misc.chat = {};
@@ -605,24 +631,19 @@ exports.addMessage = function (packet, category, globalid) {
   if (misc.chat[category] == undefined) {
     misc.chat[category] = [];
   }
-  misc.chat[category].push(packet);
-  misc = JSON.stringify(misc);
-  sql.prepare('UPDATE global SET misc = ? WHERE id = ?;').run(misc, globalid);
+  misc.chat[category].push(packet)
+  misc = JSON.stringify(misc)
+  sql.prepare('UPDATE global SET misc = ? WHERE id = ?;').run(misc, globalid)
 };
 
-// SQL Constant commands
-exports.insertuser = sql.prepare('INSERT INTO users (id, salt, name, avatar) VALUES (?, ?, ?, ?);');
-exports.updateuser = sql.prepare('UPDATE users SET name = ?, avatar = ? WHERE id = ?;');
+exports.insertrelation = sql.prepare("INSERT OR REPLACE INTO user_room (id, userid, globalid, rank, role) VALUES (?, ?, ?, ?, ?);");
 
-exports.insertrelation = sql.prepare("INSERT OR REPLACE INTO userglobal (id, userid, globalid, rank, role) VALUES (?, ?, ?, ?, ?);");
+const deleterelation = sql.prepare('DELETE FROM user_room WHERE userid = ? AND globalid = ?;');
 
-const deleterelation = sql.prepare('DELETE FROM userglobal WHERE userid = ? AND globalid = ?;');
-
-const updaterank = sql.prepare('UPDATE userglobal SET rank = ? WHERE userid = ? AND globalid =?;');
-const updaterole = sql.prepare('UPDATE userglobal SET role = ? WHERE userid = ? AND globalid =?;');
+const updaterank = sql.prepare('UPDATE user_room SET rank = ? WHERE userid = ? AND globalid =?;');
+const updaterole = sql.prepare('UPDATE user_room SET role = ? WHERE userid = ? AND globalid =?;');
 
 function parse(string) {
-  // console.log(string)
   if (string == '') {
     return {};
   }
@@ -635,7 +656,7 @@ function CheckOpTimers() {
   date.setHours(date.getHours() + 1);
   date = JSON.stringify(date);
   date = date.substring(0, 17);
-  // console.log(date)
+
   try {
     const globallist = sql.prepare('SELECT settings FROM global WHERE settings LIKE ? AND settings LIKE "%channelid%" ').all(`%"optimer":${date}%`);
     if (globallist.length > 0) {
@@ -647,29 +668,29 @@ function CheckOpTimers() {
   } catch(error) {
     logger.warn(error)
   }
-
-// console.log("Op check global list")
-// console.log(globallist)
 }
 exports.GetWar = function (warnumber) {
-  const war = sql.prepare('SELECT * FROM warhistory WHERE warnumber = ?').get(warnumber);
-  return war;
-};
+  const war = sql.prepare('SELECT * FROM warhistory WHERE warnumber = ?').get(warnumber)
+  return war
+}
 
 exports.GetTownName = function (obj, regionId) {
-  const region = sql.prepare('SELECT * FROM apidata_static WHERE regionId = ?').get(regionId);
-  // console.log("Town name - region",region)
-  const data = JSON.parse(region.data);
-  const name = GetTownName(data.mapTextItems, obj);
-  // console.log("Town name - got it",name)
-  return name;
-};
+  const region = sql.prepare('SELECT * FROM apidata_static WHERE regionId = ?').get(regionId)
+  const data = JSON.parse(region.data)
+  const name = GetTownName(data.mapTextItems, obj)
 
-exports.GetCounts = function () {
-  const steamcount = sql.prepare("SELECT count(id) FROM users WHERE id NOT LIKE 'anon%';").get();
-  const nosteamcount = sql.prepare("SELECT count(id) FROM users WHERE id LIKE 'anonymous_%';").get();
-  return { steamcount: steamcount['count(id)'], nosteamcount: nosteamcount['count(id)'] };
-};
+  return name
+}
+
+exports.GetCounts = async () => {
+  const [steamcount, nosteamcount] = await Promise.all([
+    users.getNonAnonymousUsers(),
+    users.getAnonymousUsers()
+  ])
+
+  return { steamcount: steamcount.length, nosteamcount: nosteamcount.length };
+}
+
 function GetTownName(labellist, town) {
   function compare(a, b) {
     if (a.distance < b.distance)
@@ -693,5 +714,5 @@ function GetTownName(labellist, town) {
 }
 
 exports.cunt = function test(string) {
-  console.log(`Database functions module ${string}`);
+
 }
