@@ -3,72 +3,91 @@ import ReactDOM from'react-dom';
 import Top from '../components/Index-top';
 const socket = Top.socket;
 import Ranks from '../_static/ranks';
-const steamid = document.cookie.substring(document.cookie.indexOf(" steamid=")+9,document.cookie.indexOf(" steamid=")+26).replace(';','');
+const steamid = document.cookie.substring(document.cookie.indexOf(" steamid=")+9,document.cookie.indexOf(" steamid=")+26).replace(';','')
 Object.defineProperty( window, 'steamid', {
   value: steamid,
   writable: false,
   enumerable: true,
   configurable: true
-});
-Top.RenderTop();
+})
+Top.RenderTop()
 
   //Get rooms this user is connected to
- $.post('/getuserrooms?' + $.param({ id:steamid}), function(roomslist) {
+  $.post('/getuserrooms?' + $.param({ id:steamid}), function(roomslist) {
   //rooms = roomslist;
-   //console.log(roomslist)
-    ReactDOM.render(<LeaveModal ref={(leavemodal) => {window.leavemodal = leavemodal}} />,document.getElementById('leaveModalContainer'));
-    ReactDOM.render(<CreateModal ref={(createmodal) => {window.createmodal = createmodal}} />,document.getElementById('createModalContainer'));
-    ReactDOM.render(<Room ref={(room) => {window.room = room}} rooms={roomslist} />,document.getElementById('roomtablebody'));
+    ReactDOM.render(<LeaveModal ref={(leavemodal) => {window.leavemodal = leavemodal}} />,document.getElementById('leaveModalContainer'))
+    ReactDOM.render(<CreateModal ref={(createmodal) => {window.createmodal = createmodal}} />,document.getElementById('createModalContainer'))
+    ReactDOM.render(<Room ref={(room) => {window.room = room}} rooms={roomslist} />,document.getElementById('roomtablebody'))
   });  
 
-
-class Room extends React.Component{
-constructor(props){
-super(props)
-  this.state = {
-    rooms: this.props.rooms
+class Room extends React.Component {
+  state = {
+      rooms: []
   }
-   this.UpdateRoom = this.UpdateRoom.bind(this);
-   this.RemoveRoom = this.RemoveRoom.bind(this);
-}
- UpdateRoom(roominfo){
-   let rooms = this.state.rooms
-   rooms[this.findRoom(roominfo.globalid)].rank=Number(roominfo.rank);
-   if(roominfo.rank==1){
-     rooms[this.findRoom(roominfo.globalid)].admin=window.myname;
+
+  componentDidMount = () => {
+    const { rooms } = this.props
+
+    this.setState({
+      rooms
+    })
+  }
+
+  UpdateRoom(roominfo){
+   const { rooms } = this.state
+
+   rooms[this.findRoom(roominfo.globalid)].rank=Number(roominfo.rank)
+
+   if(roominfo.rank === 1){
+     rooms[this.findRoom(roominfo.globalid)].admin=window.myname
    }
-   this.setState({rooms:rooms})
+
+   this.setState({
+     rooms
+    })
  }
   
 RemoveRoom(roomid){
-let rooms = this.state.rooms
+  const { rooms } = this.state
+
   rooms.splice(this.findRoom(roomid),1);
   this.setState({rooms:rooms})
 }
-  
+
 findRoom(roomid){
   for(var i =0;i< this.state.rooms.length;i++){
   if(this.state.rooms[i].globalid==roomid){
   return i;
-  }}}
+}}}
   
 render(){
-let roomlist = this.state.rooms.map((item) => <RoomUnit key={item.globalid} item={item}/>)
-  return(
-    <React.Fragment>{roomlist}</React.Fragment>    
+  let roomlist = this.state.rooms.map((item) => <RoomUnit key={item.room_link} item={item}/>)
+    return(
+      <>{roomlist}</>    
     )
 }}
 
 function RoomUnit (props){
+  const { item } = props
+
+  const {
+    adminid,
+    admin,
+    roomname,
+    room_link,
+    room_id,
+    rank
+  } = item
+
   return(
-  <tr>
-      <td className="removecell"><button onClick={()=>window.leavemodal.ShowModal(props.item)} className="removebutton"><img className="removeimage" src="https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2FX.png?1557668374293" /></button></td>
-      <td><p>{props.item.roomname}</p></td>
-      <td><a href={'https://steamcommunity.com/profiles/'+props.item.adminid}>{props.item.admin}</a></td>
-      <td><a href={window.location.origin+'/room/'+props.item.globalid}>{props.item.globalid}</a></td>
-      <td><p>{Ranks[props.item.rank]}</p></td>
+    <tr>
+      <td className="removecell"><button onClick={()=>window.leavemodal.ShowModal(item)} className="removebutton"><img className="removeimage" src="https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2FX.png?1557668374293" /></button></td>
+      <td><p>{roomname}</p></td>
+      <td><a href={`https://steamcommunity.com/profiles/${adminid}`}>{admin}</a></td>
+      <td><a href={`${window.location.origin}'/room/'${room_id}`}>Link</a></td>
+      <td><p>{Ranks[rank]}</p></td>
     </tr>
-    )
+  )
 }
 
 class LeaveModal extends React.Component{ //// MODAL FOR LEAVING ROOMS /////////////////////////////////////////
@@ -86,24 +105,23 @@ super()
 }
 
    ShowModal(room){
-     //console.log("Ping!");
      var banned = room.rank==4
     return(
-    this.setState({
-    globalid: room.globalid, 
-    roomname: room.roomname, 
-    admin: room.rank==1,
-    show: !banned
-    })
-       )
+      this.setState({
+        globalid: room.globalid, 
+        roomname: room.roomname, 
+        admin: room.rank==1,
+        show: !banned
+      })
+    )
   }
   
   CloseModal(){
-  this.setState({
-    globalid: "",
-    roomname: "", 
-    admin: "",
-    show:false
+    this.setState({
+      globalid: "",
+      roomname: "", 
+      admin: "",
+      show:false
     })
   }
   
@@ -114,32 +132,34 @@ super()
     });
   }
   
-    render(){
+  render(){
     return(
-  <React.Fragment>
-<div className={(this.state.show)?'modal show':'modal'} style={{display:(this.state.show)?'block':'none'}}>
-    <div className="modal-dialog">
-    <div className="modal-content">
-      <div className="modal-header">
-        <h4 className="modal-title">Leave room</h4>
-        <button type="button" className="close" onClick={this.CloseModal}>&times;</button>
-      </div>
-      <div className="modal-body">
-      <h6>Are you sure you want to leave room {this.state.roomname}?</h6>
-
-        {this.state.admin ? <div className="alert alert-warning" id="adminwarning">
-      <strong>Warning!</strong> You are the admin of this room. Leaving will delete this room.
-      </div>:<div></div>
-          }      </div>
-      <div className="modal-footer">
-        <button type="button" className="btn" onClick={this.LeaveRoom}>Leave room</button>
-        <button type="button" className="btn" onClick={this.CloseModal}>Close</button>
-      </div>
-    </div>
-  </div>
-  </div>
-  <div className='modal-backdrop show' style={{display:(this.state.show)?'block':'none'}}></div>
-      </React.Fragment>
+        <>
+            <div className={(this.state.show)?'modal show':'modal'} style={{display:(this.state.show)?'block':'none'}}>
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h4 className="modal-title">Leave room</h4>
+                            <button type="button" className="close" onClick={this.CloseModal}>&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <h6>Are you sure you want to leave room {this.state.roomname}?</h6>
+                            {this.state.admin &&
+                                <div className="alert alert-warning" id="adminwarning">
+                                    <strong>Warning!</strong>
+                                    You are the admin of this room. Leaving will delete this room.
+                                </div>
+                            }
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn" onClick={this.LeaveRoom}>Leave room</button>
+                            <button type="button" className="btn" onClick={this.CloseModal}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className='modal-backdrop show' style={{display:(this.state.show)?'block':'none'}}></div>
+        </>
       )
   }
 }
@@ -178,14 +198,14 @@ super()
   handleChange(event) {
         const {name, value, type, checked} = event.target
         this.setState({ [name]: value })
-    //console.log(this.state);
+
     }
     handleChangeName(event) {
         let value = event.target.value
         if(value.length<33){
         this.setState({ roomname: value })
         }
-    //console.log(this.state);
+
     }
   CreateRoom(){
     let roomname = this.state.roomname;
@@ -201,7 +221,7 @@ super()
   
     render(){
     return(
-<React.Fragment>
+      <>
   <div className={(this.state.show)?'modal show':'modal'} style={{display:(this.state.show)?'block':'none'}}>
   <div className="modal-dialog">
     <div id="index_createmodal_content" className="modal-content">
@@ -279,7 +299,7 @@ super()
   </div>
 </div>
   <div className='modal-backdrop show' style={{display:(this.state.show)?'block':'none'}}></div>
-</React.Fragment>
+</>
       )}
 }
 
@@ -290,8 +310,6 @@ super()
 
   //Updates room status
   socket.on('updateroom', function (roominfo) { //SOCKET EVENT - UPDATES ROOM
-  //console.log('updating room');
-  //console.log(roominfo);
   window.room.UpdateRoom(roominfo)
   })
   

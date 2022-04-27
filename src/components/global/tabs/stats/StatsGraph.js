@@ -13,10 +13,10 @@ class StatsGraph extends React.Component {
   if(//JSON.stringify(this.props.timeline)!=JSON.stringify(nextProps.timeline)||
      this.props.time!=nextProps.time||
     JSON.stringify(this.props.scale)!=JSON.stringify(nextProps.scale)){
-   // console.log("Checked stats graph",Date.now()-checkstart)
+
     return true
   }
-    //console.log("Checked stats graph",Date.now()-checkstart)
+
   return false
   }
 render(){
@@ -26,8 +26,7 @@ render(){
   let structuregraph = timeline.slice(0,selectedlength)
   //let structuregraph = timeline.slice(Math.floor(selectedlength-345600000/this.props.scale),selectedlength)
   let sum = (timeline[0].c+timeline[0].n+timeline[0].w)/2
-  //console.log("Minus 4 days",selectedlength,Math.floor(selectedlength-345600000/this.props.scale))
-  //console.log("Timeline sum",sum)
+
   let selectedlengthcas = Math.ceil((this.props.time-this.props.timerStart)/600000)+1
   let casgraph=timelinecas.slice(0,selectedlengthcas)
   if(this.props.previous&&this.props.timerStart==this.props.time){
@@ -79,7 +78,7 @@ render(){
     return null
   }
     let width = window.innerWidth-930
-    console.log("Stats graph width",document.getElementById('stats_wincondition_row').clientWidth,width)
+
 */
   return <div style={{ width: '100%', height: '50%' }}>
     <Recharts.ResponsiveContainer>
@@ -130,7 +129,6 @@ render(){
 }
 }
 function gradientOffset(data){
-  //console.log("Gradient offset",data)
   const dataMax = Math.max.apply(null,data.map(i => i.y));
   const dataMin = Math.min.apply(null,data.map(i => i.y));
   if (dataMax <= 0) {

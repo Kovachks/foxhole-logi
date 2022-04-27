@@ -23,7 +23,6 @@ class MiscIcon_ extends React.Component {
       this.handleDragEnd=this.handleDragEnd.bind(this)
       }
     shouldComponentUpdate(nextProps,nextState){
-      //console.log("Town props",this.props,nextProps)
       if(((this.props.selected.key == this.props.signature) && (nextProps.selected.key != nextProps.signature)) ||
         ((this.props.selected.key != this.props.signature) && (nextProps.selected.key == nextProps.signature))){
         return true
@@ -89,30 +88,32 @@ class MiscIcon_ extends React.Component {
     let size = artysize*ratio*Math.pow(2,this.props.zoom)
     let icon = new markers.MiscIcon({iconUrl:markers.MiscIconArray[obj.type].url,shadowUrl:markers.MiscIconArray[obj.type].shadow ,shadowSize: [size, size],shadowAnchor: [size/2, size/2]})
     if(this.state.artyaddon!=null){
-        // Converts from radians to degrees.
-        function toDegrees(radians) {
-          return radians * 180 / Math.PI;
-        }
-        let distanceraw = [this.state.artyaddon[0]-obj.position.y,this.state.artyaddon[1]-obj.position.x]
-        let azimuth = toDegrees(Math.atan(distanceraw[0]/distanceraw[1]))
-          if(distanceraw[1]>0){
-            azimuth=90-azimuth
-          }
-          if(distanceraw[1]<0){
-            azimuth=270-azimuth
-          }
+      // Converts from radians to degrees.
+      function toDegrees(radians) {
+        return radians * 180 / Math.PI;
+      }
+      
+      let distanceraw = [this.state.artyaddon[0]-obj.position.y,this.state.artyaddon[1]-obj.position.x]
+      let azimuth = toDegrees(Math.atan(distanceraw[0]/distanceraw[1]))
+
+      if(distanceraw[1]>0){
+        azimuth=90-azimuth
+      }
+      if(distanceraw[1]<0){
+        azimuth=270-azimuth
+      }
+
       azimuth = Number((azimuth).toFixed(1));
-        //console.log("Raw distance",distanceraw,azimuth)
         let distance = Math.floor(Math.sqrt(Math.pow(distanceraw[0],2)+Math.pow(distanceraw[1],2))/ratio)
         if(distance<(artysize/2)){
         let text = distance+" m<br />"+azimuth+"°"
         var IconText = NativeL.divIcon({className: 'note_icon_arty', html:"<div className='note_arty_text_container'><span class='note_arty_text'><b>"+text+"</b></span></div>"});
           IconText.options.iconSize=[undefined,undefined]   
           IconText.options.iconAnchor = [30,0]
-      addon=<React.Fragment><L.Polyline color="black" weight="1" positions={[[obj.position.y,obj.position.x],this.state.artyaddon]} /><L.Marker position={[this.state.artyaddon[0],this.state.artyaddon[1]]} icon={IconText} opacity={1} zIndexOffset={1000}/></React.Fragment>
+      addon=<><L.Polyline color="black" weight="1" positions={[[obj.position.y,obj.position.x],this.state.artyaddon]} /><L.Marker position={[this.state.artyaddon[0],this.state.artyaddon[1]]} icon={IconText} opacity={1} zIndexOffset={1000}/></>
         }
     }
-     return  <React.Fragment><L.Marker position={[obj.position.y,obj.position.x]} icon={icon} zIndexOffset={1000} onClick={()=>this.HandleSelect(obj.type)} draggable={true} onDragend={(e)=>this.handleDragEnd(e)} pane="toppane"
+     return  <><L.Marker position={[obj.position.y,obj.position.x]} icon={icon} zIndexOffset={1000} onClick={()=>this.HandleSelect(obj.type)} draggable={true} onDragend={(e)=>this.handleDragEnd(e)} pane="toppane"
                >
        </L.Marker>
        {(this.props.selected.key == this.props.signature) ?
@@ -127,11 +128,11 @@ class MiscIcon_ extends React.Component {
                     pane="toppane"/> :
           null}
        {addon}
-     </React.Fragment>
+     </>
     }
     render(){
     let obj = this.props.private[this.props.signature]
-    //console.log(this.props)
+
     let text = obj.notes
     if(text!=""){
       text = JSON.parse(JSON.stringify(this.props.private[this.props.signature].notes))
@@ -147,17 +148,17 @@ class MiscIcon_ extends React.Component {
     }
     if(obj.type==0){
         return(
-          <React.Fragment>
+          <>
         {(this.props.zoom>3.5||this.state.displayText)&&addon}
         <L.Marker position={[obj.position.y,obj.position.x]} icon={icon} zIndexOffset={1000} onMouseOver={(e)=>this.handleMouseOver(e)} onMouseOut={(e)=>this.handleMouseOut(e)} draggable={true} onDragstart={(e)=>this.handleDragStart(e)} onDragend={(e)=>this.handleDragEnd(e)} onClick={()=>this.HandleSelect(obj.type)} />
-          </React.Fragment>
+          </>
     )
     }
     return(
-          <React.Fragment>
+          <>
         <L.Marker position={[obj.position.y,obj.position.x]} icon={icon} zIndexOffset={1000} onClick={()=>this.HandleSelect(obj.type)} draggable={true} onDragend={(e)=>this.handleDragEnd(e)}>
         </L.Marker>
-          </React.Fragment>
+          </>
     )
     }
   }

@@ -14,7 +14,6 @@ class RequestIcon_ extends React.Component {
     }
       shouldComponentUpdate(nextProps,nextState){
       let signature = U.signature(this.props.request.position)
-      //console.log("Request props",this.props,nextProps)
         if(JSON.stringify(this.props.requests[signature])!=JSON.stringify(nextProps.requests[signature])){
           return true
         }
@@ -40,7 +39,6 @@ class RequestIcon_ extends React.Component {
       for(var j =0;j<request.request[i].length;j++){
         let obj = request.request[i][j]
         let item = done.find(item => obj.catid == item.catid&&obj.itemid == item.itemid);
-       // console.log("Request items",obj,item)
         if(item==undefined){
           return false;
         }else{
@@ -66,7 +64,6 @@ class RequestIcon_ extends React.Component {
   }
 
   render(){
-  //console.log("Rendering request")
   let request = this.props.request
   let icon = markers.RequestIcon.incomplete
   if(this.CheckCompleted()){

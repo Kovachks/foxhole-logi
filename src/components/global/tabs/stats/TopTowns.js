@@ -13,10 +13,10 @@ class TopTowns extends React.Component { //Conquest X, Day Y Underway since
   shouldComponentUpdate(nextProps, nextState){
     //let checkstart = Date.now()
   if(JSON.stringify(this.props.timelinesnap.spec.toptowns)!=JSON.stringify(nextProps.timelinesnap.spec.toptowns)){
-    //console.log("Checked top towns",Date.now()-checkstart)
+
     return true
   }
-    //console.log("Checked top towns",Date.now()-checkstart)
+
   return false
   }
 
@@ -39,7 +39,6 @@ class TopTowns extends React.Component { //Conquest X, Day Y Underway since
       }
       toptowns[i]=<tr key={"stats_toptowns_tr_"+toptowns[i].name} className={trclass}><td>{sideimg}</td><td className="stats_toptowns_nametd">{toptowns[i].name}</td><td><AnimatedNumber value={toptowns[i].amount} duration={600} stepPrecision={0}/></td></tr>
     }
-    //console.log("Top towns",toptowns)
     
     return <div id="stats_toptowns" className="stats_div">
           <p className="stats_div_header">Most captured towns</p>

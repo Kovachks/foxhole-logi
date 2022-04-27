@@ -22,8 +22,7 @@ class Fort_ extends React.Component {
         
         return false
       }
-    render(){
-      console.log("Updating fort")
+    render() {
       let opacity = 1;
      if(this.props.dynamic.flags&4){
        opacity=0.7

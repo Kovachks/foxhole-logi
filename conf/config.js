@@ -31,7 +31,7 @@ const config = env.getOrElseAll({
     url: 'http://localhost:3000'
   },
   steamApi: {
-    key: ''
+    key: '4588B23B1CDE90AAD7B378C17C766617'
   },
   warApi: {
     liveUrl: 'https://war-service-live.foxholeservices.com'
@@ -43,6 +43,12 @@ const config = env.getOrElseAll({
     fileNameGiven : {
       $default: './.data/FHGHQ.db'
     }
+  },
+  mySql: {
+    host: 'localhost',
+    user: 'root',
+    password: 'thecakeisalie',
+    database: 'foxhole'
   }
 })
 

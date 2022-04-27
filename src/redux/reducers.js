@@ -88,9 +88,7 @@ const RoomInfoReducer = (state = initialStateMap, action) => {
       return { ...state, stats: action.stats,};
     case A.UPDATE_OBJECT:
       info = JSON.parse(JSON.stringify(state));
-      // console.log(action)
-      // console.log(info)
-      // console.log("State",state)
+
       if (action.kind.includes('misc')) {
         const kind = action.kind.slice(5);
         if (info.misc[kind] == undefined) {
@@ -104,7 +102,7 @@ const RoomInfoReducer = (state = initialStateMap, action) => {
       }
       if (action.kind != 'refinery' && action.kind != 'production' && action.kind != 'storage' && action.kind != 'stockpiles' && action.kind != 'artypanel') {
         info[action.kind][action.signature] = TransformObject(action.object);
-        // console.log(action)
+
         return { ...state, [action.kind]: info[action.kind]};
       }
 
@@ -143,8 +141,6 @@ const RoomInfoReducer = (state = initialStateMap, action) => {
 };
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////
 const PrivateReducer = (state = initialStateMapPrivate, action) => {
-  // console.log("info:")
-  // console.log(state)
   let info = {};
   switch (action.type) {
     case A.LOAD_PAGE:
@@ -187,7 +183,7 @@ const PrivateReducer = (state = initialStateMapPrivate, action) => {
       break;
     case A.ADD_MESSAGE:
       info = JSON.parse(JSON.stringify(state));
-      console.log('Adding message', state.misc.chat);
+
       if (info.misc.chat == undefined) {
         info.misc.chat = {};
         info.misc.chat[action.category] = [];
@@ -196,7 +192,7 @@ const PrivateReducer = (state = initialStateMapPrivate, action) => {
         info.misc.chat[action.category] = [];
       }
       info.misc.chat[action.category].push(action.packet);
-      console.log('Added message', info.misc.chat);
+
       return { ...state, misc: info.misc};
     case A.CLEAR_ROOM:
       return { ...state, refinery:{},
@@ -257,7 +253,7 @@ const UserReducer = (state = initialStateUsers, action) => {
     case A.SET_USERS:
       let rank = 3;
       const userlist = action.users;
-      // console.log("State users",users)
+
       for (var i = 0; i < userlist.length; i++) {
         if (window.steamid == userlist[i].id) {
           rank = userlist[i].rank;
@@ -272,7 +268,7 @@ const UserReducer = (state = initialStateUsers, action) => {
           }
         }
       }
-      // console.log("Store",store)
+
       if (rank == 4) { // kicks if banned
         window.modalcontainer.ShowModal(2);
         socket.close();
@@ -290,7 +286,6 @@ const UserReducer = (state = initialStateUsers, action) => {
           users[i].rank = action.user.rank;
         }
       }
-      // console.log("Redux top",Top,socket)
 
       socket.emit('updateusers', users, window.steamid);
       return {
@@ -359,7 +354,7 @@ const MetaReducer = (state = initialStateMeta, action) => {
       settings.optimer = action.date;
       return { ...state, settings };
     case A.DELETE_OPTIMER:
-      // console.log("deleting optimer")
+
       settings = JSON.parse(JSON.stringify(state.settings));
       delete settings.optimer;
       return { ...state, settings };
@@ -387,7 +382,7 @@ const SelectedReducer = (state = initialStateSelected, action) => {
   let kind = '';
   switch (action.type) {
     case A.SELECT_OBJECT:
-      // console.log("Selecting object")
+
       let selectbool = true;
       if (action.objtype != 'refinery' && action.objtype != 'production' && action.objtype != 'storage' && action.objtype != 'stockpiles' && action.objtype != 'artypanel') {
         selectbool = window.selecticon.SelectPrivate(action);
@@ -511,16 +506,15 @@ const ArtyReducer = (state = initialStateArty, action) => {
 };
 // /////////////////////////////////////////////////////////////////////////////////////////
 const SquadsReducer = (state = initialStateSquads, action) => {
-  // console.log("State1",state)
   let squads = [];
   if (state.squads != undefined) {
     squads = state.squads;
   }
   switch (action.type) {
     case A.LOAD_PAGE:
-      // console.log("State2",state,action.data.private.squads)
+
       squads = action.data.private.squads;
-      // console.log("Loading squads:",action.data.private.squads)
+
       if (squads == null || squads == undefined) {
         squads = {};
       }
@@ -536,7 +530,6 @@ const SquadsReducer = (state = initialStateSquads, action) => {
         vehicles: squads.vehicles,
       };
     case A.UPDATE_SQUADS:
-      // console.log("State3",state)
       return { ...state, [action.kind]: action.data };
     case A.CLEAR_ROOM:
       return {
@@ -555,21 +548,17 @@ const EventsReducer = (state = initialStateEvents, action) => {
   }
   switch (action.type) {
     case A.LOAD_PAGE:
-      // console.log("Action")
-      // console.log(action)
       return {
         ...state,
         events: action.data.events.events,
         privateEvents: action.data.private.events,
       };
     case A.SET_DYNAMIC: // Updates the map from API
-      // console.log("Action")
-      // console.log(action)
-      // console.log("Adding new event")
+
       return { ...state, events: action.events };
     case A.SUBMIT_EVENT:
       privateEvents.push(action.packet);
-      // console.log("Submit event",action.packet)
+
       switch (action.packet.type) {
         case 2:
           window.soundcontrol.PlaySingle('https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2Fsupp%20completed.mp3');

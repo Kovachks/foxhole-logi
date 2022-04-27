@@ -42,9 +42,9 @@ function HexGrid_(props){
                       />)
   }})
   
-  return <React.Fragment>
+  return <>
     {hexarray}
-  </React.Fragment>
+  </>
 }
 
 const mapDispatchToProps = dispatch => {

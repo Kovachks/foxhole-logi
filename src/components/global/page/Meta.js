@@ -6,7 +6,7 @@ import VoiceEvents from "../../../_static/voice";
 function Meta(props) {
   document.title = props.meta.settings.name;
   return (
-    <React.Fragment>
+    <>
       {props.meta.settings.name} HQ by{" "}
       <a
         id="tr"
@@ -19,7 +19,7 @@ function Meta(props) {
           window.soundcontrol = e;
         }}
       />
-    </React.Fragment>
+    </>
   );
 }
 ///////////////////////////////
@@ -45,12 +45,10 @@ class SoundControl extends React.Component {
     if (this.state.toggle) {
       let i = array.length - 1;
       function GetAudio() {
-        //console.log("Getting audio")
         let side = array[i].faction
           .toLowerCase()
           .substring(0, array[i].faction.length - 1);
         let url = VoiceEvents[array[i].id][side];
-        //console.log("Got audio",url)
         return url;
       }
       let audio = new Audio(GetAudio());
@@ -61,7 +59,6 @@ class SoundControl extends React.Component {
           audio.src = GetAudio();
           audio.pause();
           audio.load();
-          //console.log("Playing audio",audio.src)
           audio.play();
         }
       });
@@ -75,7 +72,7 @@ class SoundControl extends React.Component {
   }
   PlaySingle(obj) {
     let prop = "";
-    console.log("Sound obj", obj);
+
     if (
       obj ==
       "https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2Frelic.mp3"
@@ -94,7 +91,7 @@ class SoundControl extends React.Component {
     ) {
       prop = "prevDateOp";
     }
-    //console.log("Sound prop",prop)
+
     var timediff = new Date() - this.state[prop];
     if (timediff > 30000) {
       if (this.state.toggle) {
@@ -121,7 +118,6 @@ class SoundControl extends React.Component {
     });
   }
   render() {
-    //console.log("Updating sound control")
     let img =
       "https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2FUntitled-2.png?1559249870353";
     if (!this.state.toggle) {
@@ -129,7 +125,7 @@ class SoundControl extends React.Component {
         "https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2F42.png?1559249871623";
     }
     return (
-      <React.Fragment>
+      <>
         <button onClick={this.ToggleSound} id="audio_btn">
           <img src={img} style={{ width: 25, height: 25 }} />
         </button>
@@ -143,7 +139,7 @@ class SoundControl extends React.Component {
           style={{ width: 50 }}
           onChange={this.handleChangeVolume}
         />
-      </React.Fragment>
+      </>
     );
   }
   initiateSoundControl() {

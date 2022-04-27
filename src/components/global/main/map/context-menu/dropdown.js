@@ -76,8 +76,8 @@ export class ContextDropdown extends React.Component {  ////Component generation
       items.push(this.GetItem(i))	  
     }   
     }
-    return <React.Fragment>
+    return <>
       {items}
-    </React.Fragment>
+    </>
     }
   }

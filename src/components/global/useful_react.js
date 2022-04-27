@@ -67,7 +67,6 @@ socket.on("addMessage", function(packet, category) {
   store.dispatch(A.addMessage(packet, category));
 });
 socket.on("requestaccess", function(user) {
-  //console.log("Requesting access",user)
   user.role = 0;
   store.dispatch(A.requestAccess(user));
 });
@@ -122,10 +121,10 @@ class Notes extends React.Component {
     if (obj.type != undefined) {
       classname = classname + "misc_notes_height";
     }
-    //console.log("Notes obj",obj)
+
     if (obj == undefined || obj.notes == undefined) {
       return (
-        <React.Fragment>
+        <>
           <div className={classname} id="cardnotes">
             <textarea
               className="card_notes_input useronly"
@@ -134,11 +133,11 @@ class Notes extends React.Component {
               onChange={event => this.ChangeNotes(event)}
             ></textarea>
           </div>
-        </React.Fragment>
+        </>
       );
     }
     return (
-      <React.Fragment>
+      <>
         <div className={classname} id="cardnotes">
           <textarea
             className="card_notes_input useronly"
@@ -147,7 +146,7 @@ class Notes extends React.Component {
             onChange={event => this.ChangeNotes(event)}
           ></textarea>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

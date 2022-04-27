@@ -31,7 +31,6 @@ class ModalContainer extends React.Component {
   }
 
   HailNewKing(user) {
-    //console.log("Transfering ownership")
     socket.emit("hailnewking", user.id, window.steamid);
     store.dispatch(A.hailNewKing(user.id));
     this.CloseModal();
@@ -65,7 +64,7 @@ class ModalContainer extends React.Component {
             title: "Transfer ownership",
             body: <h5>You can't transfer ownership to anonymous users.</h5>,
             footer: (
-              <React.Fragment>
+              <>
                 <button
                   type="button"
                   className="btn"
@@ -73,7 +72,7 @@ class ModalContainer extends React.Component {
                 >
                   Close
                 </button>
-              </React.Fragment>
+              </>
             ),
             show: true
           });
@@ -87,7 +86,7 @@ class ModalContainer extends React.Component {
               </h5>
             ),
             footer: (
-              <React.Fragment>
+              <>
                 <button
                   type="button"
                   className="btn"
@@ -102,7 +101,7 @@ class ModalContainer extends React.Component {
                 >
                   No
                 </button>
-              </React.Fragment>
+              </>
             ),
             show: true
           });
@@ -152,7 +151,7 @@ class ModalContainer extends React.Component {
           title: "Are you sure you want to change the room to " + data + "?",
           body: <h5>{line}</h5>,
           footer: (
-            <React.Fragment>
+            <>
               <button
                 type="button"
                 className="btn"
@@ -167,7 +166,7 @@ class ModalContainer extends React.Component {
               >
                 No
               </button>
-            </React.Fragment>
+            </>
           ),
           show: true
         });
@@ -182,7 +181,7 @@ class ModalContainer extends React.Component {
             </h5>
           ),
           footer: (
-            <React.Fragment>
+            <>
               <button
                 type="button"
                 className="btn"
@@ -197,7 +196,7 @@ class ModalContainer extends React.Component {
               >
                 No
               </button>
-            </React.Fragment>
+            </>
           ),
           show: true
         });
@@ -206,9 +205,8 @@ class ModalContainer extends React.Component {
   }
 
   render() {
-    //console.log("Rendering modal")
     return (
-      <React.Fragment>
+      <>
         <div
           className={this.state.show ? "modal show" : "modal"}
           style={{ display: this.state.show ? "block" : "none" }}
@@ -228,7 +226,7 @@ class ModalContainer extends React.Component {
           className="modal-backdrop show"
           style={{ display: this.state.show ? "block" : "none" }}
         ></div>
-      </React.Fragment>
+      </>
     );
   }
 }
@@ -252,7 +250,6 @@ class RequestModalContainer extends React.Component {
     this.EmptyRequest = this.EmptyRequest.bind(this);
   }
   shouldComponentUpdate(nextProps, nextState) {
-    //console.log("Request modal container - check")
     if (JSON.stringify(this.state) != JSON.stringify(nextState)) {
       return true;
     }
@@ -268,8 +265,6 @@ class RequestModalContainer extends React.Component {
   }
 
   ShowModal(event, type) {
-    //console.log('Modal props')
-    //console.log(this.props);
     let position = {};
     let request = [];
     if (type == 0) {
@@ -283,7 +278,7 @@ class RequestModalContainer extends React.Component {
       position = event;
       request = clone(this.props.requests[event].request);
     }
-    //console.log(position)
+
     this.setState(() => {
       return {
         request: request,
@@ -331,7 +326,6 @@ class RequestModalContainer extends React.Component {
   }
 
   ChangeItem(priority, index, event) {
-    //console.log("Changing item")
     let request = clone(this.state.request);
     let value = event.target.value;
     let item = request[priority][index];
@@ -341,7 +335,6 @@ class RequestModalContainer extends React.Component {
     request[priority][index].amount = value;
     var crates = Math.ceil(value / cost.cost[item.catid][item.itemid].i);
     request[priority][index].crates = crates;
-    //console.log(request);
     this.setState({ request: request });
   }
 
@@ -391,7 +384,7 @@ class RequestModalContainer extends React.Component {
     }
 
     return (
-      <React.Fragment>
+      <>
         {this.state.request[0].length > 0 ? (
           <tr>
             <td className="requestmodal_priority_high" colSpan="5">
@@ -416,7 +409,7 @@ class RequestModalContainer extends React.Component {
           </tr>
         ) : null}
         {this.state.request[2].map((obj, index) => RenderLine(obj, 2, index))}
-      </React.Fragment>
+      </>
     );
   }
 
@@ -430,8 +423,7 @@ class RequestModalContainer extends React.Component {
     return 0;
   }
   CreateRequest() {
-    //console.log("Creating request");
-    //console.log(this.state)
+
     let key = U.signature({
       x: this.state.position.lng,
       y: this.state.position.lat
@@ -455,8 +447,7 @@ class RequestModalContainer extends React.Component {
           request: this.state.request,
           position: { x: this.state.position.lng, y: this.state.position.lat }
         };
-        //console.log("Request object");
-        //console.log(object)
+
         store.dispatch(A.updateObject("requests", object, key));
         socket.emit("updateObject", {
           type: "requests",
@@ -477,7 +468,6 @@ class RequestModalContainer extends React.Component {
             JSON.stringify(this.props.requests[this.state.position])
           );
           object.request = this.state.request;
-          //console.log("changing request",object)
           store.dispatch(A.updateObject("requests", object, key));
           socket.emit("updateObject", {
             type: "requests",
@@ -492,11 +482,8 @@ class RequestModalContainer extends React.Component {
   }
 
   render() {
-    //console.log("Request:")
-    //console.log(this.state);
-    //console.log("Rendering request modal")
     return (
-      <React.Fragment>
+      <>
         <div
           className={this.state.show ? "modal show" : "modal"}
           style={{ display: this.state.show ? "block" : "none" }}
@@ -587,7 +574,7 @@ class RequestModalContainer extends React.Component {
           className="modal-backdrop show"
           style={{ display: this.state.show ? "block" : "none" }}
         ></div>
-      </React.Fragment>
+      </>
     );
   }
 }
@@ -614,7 +601,6 @@ class FilterContainer extends React.Component {
   }
 
   SetFilter(filter) {
-    //console.log("Setting filter "+filter);
     this.setState(() => {
       return {
         filter: filter,
@@ -654,7 +640,7 @@ class FilterContainer extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <>
         {" "}
         <div
           className="btn-group request_modal_btngroup"
@@ -698,7 +684,7 @@ class FilterContainer extends React.Component {
           />
         </div>
         <div id="request_modal_button_container">{this.GetButtons()}</div>
-      </React.Fragment>
+      </>
     );
   }
 }

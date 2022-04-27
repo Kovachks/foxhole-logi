@@ -55,10 +55,10 @@ class Production_ extends React.Component {
       opacity=0.5
     }
     let objicon = markers.GenerateIcon(obj)
-        return <React.Fragment><L.Marker position={position} opacity={opacity} icon={objicon} onClick={(e)=>this.handleSelect(e,position)} zIndexOffset={400} >
+        return <><L.Marker position={position} opacity={opacity} icon={objicon} onClick={(e)=>this.handleSelect(e,position)} zIndexOffset={400} >
         {tooltip}
         </L.Marker>
-          </React.Fragment>
+          </>
   }
 }
 

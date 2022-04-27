@@ -223,7 +223,6 @@ class Filter extends React.Component{
 }
 
 function FindItem(array,item){
-  //console.log("Looking for "); console.log(item); console.log("in"); console.log(array);
   for(var i=0;i<array.length;i++){
     if(item.catid==array[i].catid&&item.itemid==array[i].itemid){
       return i

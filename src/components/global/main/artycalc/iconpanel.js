@@ -41,7 +41,7 @@ export class IconPanel extends React.Component {
 
     render() {
       return (
-        <React.Fragment>
+        <>
           <div id="map_artycontrol_dropdown" className="collapse width">
             <div id="map_artycontrol_innerdiv">
               {this.GetIcon(25, 'ListeningKitIcon.png')}
@@ -62,7 +62,7 @@ export class IconPanel extends React.Component {
               src={repo + 'StaticArtilleryStructureIcon.png'}
             />
           </button>
-        </React.Fragment>
+        </>
       );
     }
   }

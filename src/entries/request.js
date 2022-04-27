@@ -10,9 +10,8 @@ $(function() {
   var adminname;
   var rank;
  
- // console.log(id);
   $.post('/request2?' + $.param({ id:id}), function(response) {
-  //console.log(response)
+
   ReactDOM.render(<Modal info={response}/>,document.getElementById('container')); 
   })
 
@@ -55,37 +54,37 @@ if(steamid.includes("anonymous")){
  let body;
  let header= null;
    if(this.props.info.rank==8){
-     body = <React.Fragment>
+     body = <>
        <h5>This room doesn't exist</h5>
         <button type="button" className="btn" onClick={()=>window.location.replace('/')}>Return to profile</button>
-       </React.Fragment>
+       </>
    }else{
      header = <h5>This is room {this.props.info.roomname} created by <a href={'https://steamcommunity.com/profiles/'+this.props.info.adminid}>{this.props.info.admin}</a></h5>
      if(this.props.info.secure==0){
-   body= <React.Fragment>
+   body= <>
            <h5>Password:  <input type="text" name="password" onChange={(e)=>this.handleChangeField(e)}/></h5>
        <button type="button" className="btn" onClick={()=>this.SubmitData()}>Submit</button>
       <button type="button" className="btn" onClick={()=>window.location.replace('/')}>Return to profile</button>
-     </React.Fragment>
+     </>
    }else{
      if(steamid=="anonymous"){
-       body= <React.Fragment>
+       body= <>
            <h5>This room is secure. Only Steam-logged users can access this room.</h5>
            <button type="button" className="btn" onClick={()=>window.location.replace('/')}>Return to profile</button>
-         </React.Fragment>
+         </>
      }else{
      switch(this.props.info.rank){
        case 4:
-         body= <React.Fragment>
+         body= <>
            <h5>You have been banned from this room</h5>
            <button type="button" className="btn" onClick={()=>window.location.replace('/')}>Return to profile</button>
-         </React.Fragment>
+         </>
          break;
        case 5:
-         body= <React.Fragment>
+         body= <>
            <h5>You have already requested access to this room</h5>
            <button type="button" className="btn" onClick={()=>window.location.replace('/')}>Return to profile</button>
-         </React.Fragment>
+         </>
          break;
        case 7:
          body = <button type="button" className="btn" onClick={this.RequestAccess}>Request room access</button>

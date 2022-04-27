@@ -39,7 +39,6 @@ class RLDComp_ extends React.Component {
     }
   
   handleCreate(e){
-    //console.log(e)
     let packet = {}
     let key = ""
     switch(e.layerType){
@@ -65,13 +64,11 @@ class RLDComp_ extends React.Component {
   }
   
   handleEdit(e){
-    //console.log("Edit RLD",e)
     let packets = []
     let keys = []
     for(var prop in e.layers._layers){
       let obj = e.layers._layers[prop]
       keys.push(obj.options.signature)
-     // console.log(e.layers._layers[prop])
       switch(obj.options.type){
         case "circle":
          packets.push({position:[obj._latlng.lat,obj._latlng.lng],radius:obj._mRadius,type:obj.options.type})
@@ -91,7 +88,6 @@ class RLDComp_ extends React.Component {
     
   }
   handleDelete(e){
-    //console.log("Delete RLD",e)
     for(var prop in e.layers._layers){
       let obj = e.layers._layers[prop]
       let key = obj.options.signature;
@@ -131,7 +127,6 @@ class RLDComp_ extends React.Component {
     this.setState({ style:value })
   }
  render(){
-   console.log(this.state)
    let rld = this.props.misc.rld
    let objects = []
    if(rld==undefined){
@@ -140,7 +135,7 @@ class RLDComp_ extends React.Component {
     for(var obj in rld){
       objects.push(this.GetObject(rld[obj],obj))
     }
-   //for(var i=0;i<)
+
    return <L.FeatureGroup>
     <RLD.EditControl
       ref={(e) => {this.editcontrol = e}}
@@ -180,21 +175,19 @@ class Arrow extends React.Component {
     super(props);
     }
   componentDidUpdate(){
-    console.log(this)
+
   }
   componentDidMount(){
-    console.log(this.refs.arrow_icon)
+
   }
   render(){
     let obj = this.props.obj
-    console.log("Arrow obj",obj)
-        var arrow_icon = NativeL.divIcon({className:"arrow_icon",html:"►"});
-        arrow_icon.options.iconSize=[20,20]   
-        arrow_icon.options.iconAnchor = [10,10]
-        console.log("Arrow icon",arrow_icon)
-        //myIcon.options.iconAnchor[0]=myIcon.options.iconSize[0]/2;
-        //myIcon.options.iconAnchor[1]=myIcon.options.iconSize[1]/2;
-        let icon = <L.Marker  position={obj.position[obj.position.length-1]} icon={arrow_icon}/>
+    var arrow_icon = NativeL.divIcon({className:"arrow_icon",html:"►"});
+    arrow_icon.options.iconSize=[20,20]   
+    arrow_icon.options.iconAnchor = [10,10]
+    //myIcon.options.iconAnchor[0]=myIcon.options.iconSize[0]/2;
+    //myIcon.options.iconAnchor[1]=myIcon.options.iconSize[1]/2;
+    let icon = <L.Marker  position={obj.position[obj.position.length-1]} icon={arrow_icon}/>
     return <L.FeatureGroup><L.Polyline color={this.props.color} dashArray="5, 5" fillOpacity={0.1} positions={obj.position} signature={this.props.signature} type="polygon"/>{icon}
    
     </L.FeatureGroup>

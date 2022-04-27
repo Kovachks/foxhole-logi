@@ -43,13 +43,13 @@ class Chat extends React.Component {
       for(let i =0;i<this.props.chat[this.props.category].length;i++){
         let message = this.props.chat[this.props.category][i]
         let user = U.GetUser(this.props.users.users,message.userid)
-        //console.log(message,user)
+
         messages.push(<Message user={user} message={message} category={this.props.category}/>)
       }
       }
       }
-      return <React.Fragment><div className="chat_window" id={"chat_window_"+this.props.category}><ul>{messages}</ul></div>{
-      (this.props.category!="announcements"||this.props.users.myrank<3) ? <ChatInput category={this.props.category}/> : null}</React.Fragment>
+      return <><div className="chat_window" id={"chat_window_"+this.props.category}><ul>{messages}</ul></div>{
+      (this.props.category!="announcements"||this.props.users.myrank<3) ? <ChatInput category={this.props.category}/> : null}</>
   }
 }
 

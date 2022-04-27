@@ -1,8 +1,8 @@
 import React from 'react';
+import { loggers } from 'winston';
 import RegionImages from "../../_static/region-images";
 ///////////////////////////////////////////////////////////////////////
 function GetMyRank(users) {
-  //console.log(users)
   for (var i = 0; i < users.length; i++) {
     if (window.steamid == users[i].id) {
       return users[i].rank;
@@ -56,7 +56,6 @@ function GetAvatar(users, id) {
 }
 //////////////////////////////////////////////////////////////////////
 function GetUser(users, id) {
-  //console.log("Checking user",users,id)
   for (var i = 0; i < users.length; i++) {
     if (id == users[i].id) {
       let user = JSON.parse(JSON.stringify(users[i]));
@@ -81,7 +80,7 @@ function signature(obj) {
 ///////////////////////////////////////////////////////////////////////
 function GetUpdate(props) {
   let obj = props.obj;
-  //console.log("Update obj",obj)
+
   return (
     <div
       className="card-header cardheader"
@@ -169,7 +168,7 @@ function GetTownName(regionid, town, staticdata) {
     }
     labellist.sort(compare);
   } catch (err) {
-    console.log(err, staticdata, regionid);
+    loggers.error(err)
   }
   try {
     return labellist[0].text;

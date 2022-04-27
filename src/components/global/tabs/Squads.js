@@ -63,7 +63,6 @@ function DeleteAnonymous(squadarray,users){
       for(var j=squadarray[i].users.length-1;j>=0;j--){
         let user = U.GetUser(users,squadarray[i].users[j])
            if(!user.valid){
-             //console.log("deleting user",squadarray,squadarray[i].users[j])
             if(squadarray[i].users.length==1){
                 squadarray.splice(i,1)
               changed=true
@@ -108,13 +107,13 @@ class SquadsCore extends React.Component {  ////Component generation
      }
 
   //let filters = cost.filters.map((obj,index) => this.function(obj,index))
-  return <React.Fragment>
+  return <>
   <button id="squads_create_btn" onClick={this.CreateSquad}>Create squad</button>
   <div id="squads_totalcontainer">{squadlist}</div> 
   <RoleList users={this.props.users} />
   <p id="squads_armycomp_header">Army Composition</p>
   <ArmyComp squads={this.props.squads} users={this.props.users} faction={this.props.faction} />
-  </React.Fragment>}
+  </>}
 }
   
 ////////////////////////////////////////
@@ -178,7 +177,6 @@ class Squad extends React.Component {  ////Component generation
   }
   render(){
   let squad = this.props.squads[this.props.index]
-  //console.log("Squad",squad)
   let rolecode=this.CheckIfMine()
   let squadname = <p className="squad_name_text" >{squad.name}</p>
   if(rolecode==2){
@@ -203,7 +201,6 @@ class RoleList extends React.Component {  ////Component generation
     this.handleRoleCheckbox = this.handleRoleCheckbox.bind(this)
   }
   ChangeRole(index,type){
-    //console.log(index);
     let user = clone(U.GetUser(this.props.users.users,window.steamid))
     user.role[type]=index
     store.dispatch(A.setRole(user))
@@ -222,7 +219,7 @@ class RoleList extends React.Component {  ////Component generation
   }
   GetImage(index,counter){
     let textclass = "squad_role_empty"
-    //console.log(index,counter)
+
     if(counter!=0){
       textclass="squad_role_notempty"
     }
@@ -238,7 +235,7 @@ class RoleList extends React.Component {  ////Component generation
       rolecounter.push(0)
     }
       for(let i=0;i<this.props.users.users.length;i++){
-        //console.log("User",this.props.users.users[j])
+
         let user = this.props.users.users[i]
         if(user.online){
         rolecounter[user.role[0]]++;
@@ -248,7 +245,6 @@ class RoleList extends React.Component {  ////Component generation
     
     let roleoptions = []
 
-    //console.log("rolecounter",rolecounter)
     //////ROLE SELECT PANEL
     for(let i =0;i<4;i++){
       let role0=this.GetRole(i);
@@ -271,7 +267,7 @@ class RoleList extends React.Component {  ////Component generation
       }
           tablerows.push(<tr key={"rolerow"+i}>{row}</tr>)
       } 
-    return <React.Fragment>
+    return <>
       <div id="squads_rolecounter_table">
         <table>
         <thead  className="squads_roleselect_header">
@@ -300,7 +296,7 @@ class RoleList extends React.Component {  ////Component generation
           onChange={()=>this.handleRoleCheckbox(2)} 
                                                                           />Combat</th></tr></thead><tbody>
        {tablerows2}
-       </tbody></table></React.Fragment>
+       </tbody></table></>
     
   }
 }
@@ -318,13 +314,12 @@ class ArmyComp extends React.Component {  ////Component generation
   AddVehicle(index){
     let vehicles = clone(this.props.squads.vehicles)
     let vehiclename = vehicleArray[index].name
-    //console.log("Adding vehicle",vehicles)
+
     if(vehicles[vehiclename]==undefined){
-      //console.log("No category",vehiclename,vehicles)
       vehicles[vehiclename]=[]
     }
     vehicles[vehiclename].push({})
-    //console.log("Updating vehicles",vehicles)
+
     UpdateSquads (vehicles,"vehicles")
   }
   UpdateVehicle(index,vehicle,t){
@@ -349,14 +344,14 @@ class ArmyComp extends React.Component {  ////Component generation
     UpdateSquads (vehicleList,"vehicles")
   }
   SelectCategory(index){
-    //console.log("Selecting category",index)
+
     if(index == this.state.selectedCategory){
-      //console.log("Setting category 100")
+
       this.setState({
         selectedCategory:100
       })
     }else{
-      //console.log("Setting category",index)
+
       this.setState({
         selectedCategory:index
       })
@@ -375,7 +370,7 @@ class ArmyComp extends React.Component {  ////Component generation
         let indexj = j
         let type = vehicleArray[j].name
         let item = null
-        //console.log("Checking",type,index)
+
         if(props[type]!=undefined){
           if(props[type][index]!=undefined){
           over = false;
@@ -385,9 +380,9 @@ class ArmyComp extends React.Component {  ////Component generation
               crew++;
             }
           }
-            item = <React.Fragment><img className="squads_armycomp_vehicleimg squads_armycomp_vehicle_categoryimg" src={vehicleArray[j].url[this.props.faction]} onClick={()=>this.SelectCategory(indexj)}/>
+            item = <><img className="squads_armycomp_vehicleimg squads_armycomp_vehicle_categoryimg" src={vehicleArray[j].url[this.props.faction]} onClick={()=>this.SelectCategory(indexj)}/>
               <p className="squads_armycomp_crewamount_p">{crew}/{vehicleArray[j].roles.length}</p>
-              </React.Fragment>
+              </>
           }
         }
         row.push(<td className="squads_armycomp_itemcell" key={"armycompvtablecell"+index+"|"+indexj}>{item}</td>)
@@ -398,7 +393,7 @@ class ArmyComp extends React.Component {  ////Component generation
       }
       index++
       rowarray.push(<tr key={"armycompvtable"+index}>{row}</tr>)
-      //console.log("Index", index)
+
       if(index>100){
         break;
       }
@@ -409,7 +404,7 @@ class ArmyComp extends React.Component {  ////Component generation
     let buttonlist = []
     let vehiclelist=[]
      let rowarray=  []
-     //console.log("Army comp state",this.state)
+
     for(var i =0;i<vehicleArray.length;i++){
       let index = i
       let classname = "squads_armycomp_category_col"
@@ -461,7 +456,6 @@ class ArmyCompVehicle extends React.Component {  ////Component generation
     this.props.UpdateVehicle(this.props.index,vehicle,this.props.type);
   }
   RemoveVehicle(){
-    //console.log("Remove vehicle props",this.props)
     let type = this.props.type;
     let index = this.props.index;
     this.props.RemoveVehicle(type,index)
@@ -495,7 +489,6 @@ class ArmyCompVehicle extends React.Component {  ////Component generation
 /////////////////////////////////////////////////
 
 const mapStateToProps = store => {    //Importing props from store
-  //console.log(store) 
   let meta = store.meta
   return {
     squads: store.squads,

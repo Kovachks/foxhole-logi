@@ -37,7 +37,6 @@ class Refinery_ extends React.Component {
     }
  }
   render(){
-     //console.log("Updating refinery")
     let obj = this.props.dynamic
     let position = convert(this.props.regionId,obj.x,obj.y)
     let privateobj = this.props.refinery[this.props.signature]
@@ -65,11 +64,11 @@ class Refinery_ extends React.Component {
       opacity=0.5
     }
       let objicon = markers.GenerateIcon(obj)
-        return <React.Fragment><L.Marker position={position} opacity={opacity} icon={objicon} onClick={(e)=>this.handleSelect(e,position,obj)} zIndexOffset={16000} >
+        return <><L.Marker position={position} opacity={opacity} icon={objicon} onClick={(e)=>this.handleSelect(e,position,obj)} zIndexOffset={16000} >
         {tooltip}
         </L.Marker>
           {addon}
-        </React.Fragment>
+        </>
   }
 }
 

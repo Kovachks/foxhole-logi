@@ -122,10 +122,8 @@ export class LogiCalc extends React.Component {
   }
 
   render() {
-    //console.log(this.state.array)
-    //console.log("Rendering logi calc")
     return (
-      <React.Fragment>
+      <>
         <p>Orders Calculator</p>
         <div className="row">
           <div className="col-12 col-sm-12 col-md-5">
@@ -247,13 +245,12 @@ export class LogiCalc extends React.Component {
             </div>
           </div>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }
 ///////////////////////////////////
 function Item(props) {
-  //console.log("Item props",props)
   function GetCost(type) {
     if (cost.cost[props.obj.catid][props.obj.itemid][type] == undefined) {
       return null;

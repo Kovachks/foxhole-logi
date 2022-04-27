@@ -16,7 +16,6 @@ class SelectIcon_ extends React.Component {  ////Component generation
       this.SelectPrivate = this.SelectPrivate.bind(this)
     }
     ChangePosition(position,type){
-      //console.log("Select type",type)
       let coords = position
       let addon = null
       if(position.y!=undefined){
@@ -27,7 +26,7 @@ class SelectIcon_ extends React.Component {  ////Component generation
         if(type=="fobs"){
           radius=80;
         }
-       // console.log("Rendering radius")
+
         addon = <L.Circle center={coords}  dashArray="5, 5" dashOffset='0' fillColor="gray" color="#aa4a1e" fillOpacity={0.4}  radius={RegionImages.ratio*radius} />
       }
        this.setState({ position:coords,addon:addon})
@@ -35,7 +34,6 @@ class SelectIcon_ extends React.Component {  ////Component generation
     
     SelectPrivate(action){
       let obj = {}
-      //console.log("Select icon",action)
       if(action.townname=="misc"){
         obj = this.props.private.misc[action.objtype][action.signature]
       }else{
@@ -48,9 +46,9 @@ class SelectIcon_ extends React.Component {  ////Component generation
       return true
     }
     render(){
-      return <React.Fragment><L.Marker position={this.state.position} icon={new markers.SelectIcon}/>
+      return <><L.Marker position={this.state.position} icon={new markers.SelectIcon}/>
       {this.state.addon}
-      </React.Fragment>    
+      </>    
     }
   }
 

@@ -23,7 +23,6 @@ class Facility_ extends React.Component{
     
   }
   GetObject(){
-          //console.log("Props",this.props)
     let obj = {}
     if(this.props.collateral==undefined){
     obj =  this.ProcessIncomplete(this.props.storeObj)
@@ -33,7 +32,7 @@ class Facility_ extends React.Component{
     return clone(obj)
   }
   shouldComponentUpdate(nextProps, nextState){
-    //console.log("Facility props",this.props.storeObj,nextProps.storeObj)
+
     let old = this.props.storeObj;  let newobj=nextProps.storeObj
     if(this.props.collateral!=undefined){
     
@@ -60,11 +59,10 @@ class Facility_ extends React.Component{
         return true    
       }
     }
-    //console.log("Type",this.props.type)
+
     return  false
   }
     handleChangeFacility(facility,value){
-    //console.log(this.props)
     let obj = this.GetObject()
     if(value!=facilitylimit){
         if(value==""){value=0}
@@ -96,8 +94,7 @@ class Facility_ extends React.Component{
       if(obj[facility.name]==undefined){
         obj[facility.name]=0;
       }
-      //console.log("Type:"); console.log(type)
-      //console.log("Object:"); console.log(obj)
+
       if(obj[facility.name]==facilitylimit){
       input = <input className="towninput useronly" type="text" disabled="disabled" value="DONE" />
       fillbtn=<button type="button" className="btn cardbtn useronly" onClick={()=>card.handleChangeFacility(facility,0)}>Empty</button>
@@ -117,11 +114,11 @@ class Facility_ extends React.Component{
     }
           
     let rows = facilitytypes.array[type].map((facility) => RenderLine(facility)) 
-    return(<React.Fragment>
+    return(<>
       <div className="card-body cardheader"><table className="table"><tbody>
         {rows}
         </tbody></table></div>
-      </React.Fragment>
+      </>
     )
  } 
 }

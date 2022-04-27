@@ -28,15 +28,12 @@ class Timelapse_ extends React.Component { //Conquest X, Day Y Underway since
       return true
     }
     if(JSON.stringify(this.props.dynamic)==JSON.stringify(nextProps.dynamic)){
-      //console.log("Checked timelapse",Date.now()-checkstart)
       return false
     }
-    //console.log("Checked timelapse",Date.now()-checkstart)
-    //console.log("Updating timelapse",this.props,nextProps)
+
     return true
   }
   onSwitchWar(e){
-    //console.log(e)
     document.getElementById("stats_timelapse_loader").style.display ="flex"
     this.setState({
       war:e.target.value
@@ -44,8 +41,6 @@ class Timelapse_ extends React.Component { //Conquest X, Day Y Underway since
     this.props.SwitchWar(e.target.value)
   }
   render(){
-    //console.log("Timelapse props",this.props.dynamic)
-      //console.log("Timelapse props",this.props)
     if(this.refs.worldmap!=undefined){
       this.refs.worldmap.leafletElement.invalidateSize()
     }
@@ -80,7 +75,6 @@ class Timelapse_ extends React.Component { //Conquest X, Day Y Underway since
     let timestring = new Date(this.props.time).toLocaleTimeString()
     timestring = timestring.split(":")
     let totaldatestring = <p id="stats_timelapse_date">{datestring[1]} {datestring[2]} {datestring[3]} {timestring[0]}:{timestring[1]}</p>
-    //console.log("Top towns",toptowns)
     let wars = []
     for(let i=0;i<this.props.stats.currentwar.warstats.length;i++){
       let war = this.props.stats.currentwar.warstats[i]
@@ -150,7 +144,7 @@ class Tiles extends React.Component {
                         />)
       }
     }
-    return <React.Fragment><L.TileLayer
+    return <><L.TileLayer
           noWrap={true}
           continuousWorld={true} 
           bounds={[[-256,0],[0,256]]}
@@ -159,7 +153,7 @@ class Tiles extends React.Component {
           className="stats_map_tiles"
         />
     {hexarray}
-    </React.Fragment>
+    </>
   }
 }
 /////////////////////////////////////////////////
@@ -173,7 +167,7 @@ shouldComponentUpdate(nextProps, nextState){
   if(JSON.stringify(this.props.item)==JSON.stringify(nextProps.item)){
     return false
   }
-  //console.log("Updating icon")
+
   return true
 }
 
@@ -189,7 +183,7 @@ GetTeamId(){
   }
 }
 render(){
-  //console.log("Rendering stats icon")
+
   let item = this.props.item
   let position = RegionImages.convert(this.props.regionId,item.x,item.y)
   let icon = markers.GenerateIcon(item)//markers.iconarray[item.iconType][this.GetTeamId()]
@@ -198,7 +192,7 @@ render(){
   }
   //this.refIcon=icon
   window.timelapseicon[item.x]=this
-  //console.log("Timelapse icon",icon)
+
   //icon = U.copy(icon)
   
   let sideclass = "map_icon_timelapse_active_neutral"
@@ -221,8 +215,8 @@ render(){
     if(item.flags&0x01){ //Marks victory towns
          addon_victory = markers.GetVictoryAddon(item,position)
     }
-  return <React.Fragment>{addon_victory}{addon_hq}
-    <L.Marker key={"stats_timelapse_icon_"+item.x+item.y} position={position} icon={icon} zIndexOffset={400} /></React.Fragment>
+  return <>{addon_victory}{addon_hq}
+    <L.Marker key={"stats_timelapse_icon_"+item.x+item.y} position={position} icon={icon} zIndexOffset={400} /></>
 }
 }
 ////////////////////////////////////////////
@@ -275,7 +269,7 @@ render(){
   let item = this.props.item
   let position = RegionImages.convert(this.props.regionId,item.x,item.y)
   //window.timelapseicon[item.x]=this
-  //console.log("Timelapse icon",icon)
+
   //icon = U.copy(icon)
   let sideclass = "map_icon_timelapse_active_neutral"
   let color = "#ffffff"
@@ -287,14 +281,13 @@ render(){
     color="#235683"
   }
     sideclass= "map_icon_timelapse_active "+sideclass
-    //console.log("Rerendering fort icon",item,sideclass,color)
 
   return <L.CircleMarker key={"stats_timelapse_forticon"+item.teamId+item.x+item.y} center={position} fillColor={color} color={"#000000"} radius={4} className={sideclass} fillOpacity={1} weight={1}/>
 }
 }
 //////
 const mapStateToPropsTimelapse = store => {    //Importing props from store
-  //console.log(store) 
+
   return {
     tab:store.tab
   }

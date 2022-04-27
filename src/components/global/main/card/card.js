@@ -59,7 +59,6 @@ class Card_ extends React.Component {
      socket.emit('changeSettings',"notify",settings.notify)
   }
  render(){
-  //console.log("Rendering card")
    if(this.props.selected.type!="refinery"&&this.props.selected.type!="production"&&this.props.selected.type!="storage"&&this.props.selected.type!="stockpiles"&&this.props.selected.type!="icon"&&this.props.selected.type!="fobs"){
       return null
     }
@@ -79,13 +78,13 @@ class Card_ extends React.Component {
     switch(this.props.selected.type){
       case "stockpiles":
         title=this.props.selected.townname
-        body = <React.Fragment>
-          </React.Fragment>
+        body = <>
+          </>
         if(title!="Fort"){
-          body=<React.Fragment>
+          body=<>
              <Facility type={"refinery"} collateral={true}/>
              <Facility type={"production"}  collateral={true}/>
-            </React.Fragment>
+            </>
         }
         if(this.props.settings.link!=undefined){
         title = <div id="card_notify_headercontainer"><span id="card_header_title">{title}</span> <div id="card_notify_container">Notify in Discord<input type="checkbox" 
@@ -95,10 +94,10 @@ class Card_ extends React.Component {
         }
         break;
       case "fobs":
-        title=<React.Fragment><span className="fob_card_text">Outpost</span></React.Fragment>
-        body = <React.Fragment>
+        title=<><span className="fob_card_text">Outpost</span></>
+        body = <>
             <FobPanel />
-          </React.Fragment>
+          </>
         break;
       case "refinery":
         title="Refinery"
@@ -111,11 +110,11 @@ class Card_ extends React.Component {
         break;
       case "storage":
         title="Storage Depot"
-        body = <React.Fragment>
-          </React.Fragment>
+        body = <>
+          </>
         break;
       case "icon":
-        title=<React.Fragment>{markers.MiscIconArray[this.props.selected.misctype].name} <UR.DeletePopover header={"Delete icon?"} type={"misc_icon"} signature={this.props.selected.key}/></React.Fragment>
+        title=<>{markers.MiscIconArray[this.props.selected.misctype].name} <UR.DeletePopover header={"Delete icon?"} type={"misc_icon"} signature={this.props.selected.key}/></>
         body= null
     }
     let card = <div className="card">
@@ -125,19 +124,19 @@ class Card_ extends React.Component {
       <UR.Notes />
     </div>      
  return(
-   <React.Fragment>
+   <>
      {card}
      {appendix}
-   </React.Fragment>);
+   </>);
  } 
 }
 
 const mapStateToProps = store => {
-    //console.log(store) 
-    let meta = store.meta
-    return {
-      selected: store.selected,
-      settings: meta.settings
-    }
+  let meta = store.meta
+  return {
+    selected: store.selected,
+    settings: meta.settings
   }
+}
+
 export const Card = connect(mapStateToProps,null,null,{forwardRef:true})(Card_)

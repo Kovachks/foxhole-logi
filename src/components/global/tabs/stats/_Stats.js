@@ -100,7 +100,6 @@ class StatsCore extends React.Component {
     this.SwitchWar=this.SwitchWar.bind(this)
    }
   SwitchWar(warnumber){
-    console.log("Selecting war",warnumber)
     if(warnumber==this.state.warnumber){
       this.setState({
         currentwar:this.props.stats.currentwar,
@@ -117,36 +116,38 @@ class StatsCore extends React.Component {
       if (request.status >= 200 && request.status < 400) {
         try{
           let data= this.response
-          console.log("War data",data)
+
           if(data.warstats!=""){
             data.warstats = JSON.parse(data.warstats)
           }
+
           if(data.events!=""){
             data.events = JSON.parse(data.events)
-            console.log("Switching events",data.events)
           }
+
           if(data.reports!=""){
             data.reports = JSON.parse(data.reports)
           }
+
           if(data.startpoint!=""){
             data.startpoint=JSON.parse(data.startpoint)
           }
-          //console.log("Setting war",data.startpoint.number,comp)
-      if(data.startpoint.number==comp.state.warnumber){
-        data.reports = FillReportGaps(data.reports,data.startpoint.date,Date.now(),data.startpoint)
-        comp.setState({
-          currentwar:data,
-          //warnumber:data.startpoint.number,
-          previous:false
-        })
-      }else{
-        data.reports = FillReportGaps(data.reports,data.startpoint.date,data.warstats.conquestEndTime,data.startpoint)
-        comp.setState({
-          currentwar:data,
-          //warnumber:data.startpoint.number,
-          previous:true
-        })
-      }
+
+          if(data.startpoint.number==comp.state.warnumber){
+            data.reports = FillReportGaps(data.reports,data.startpoint.date,Date.now(),data.startpoint)
+            comp.setState({
+              currentwar:data,
+              //warnumber:data.startpoint.number,
+              previous:false
+            })
+          }else{
+            data.reports = FillReportGaps(data.reports,data.startpoint.date,data.warstats.conquestEndTime,data.startpoint)
+            comp.setState({
+              currentwar:data,
+              //warnumber:data.startpoint.number,
+              previous:true
+            })
+          }
     document.getElementById("stats_timelapse_loader").style.display ="none"
         }catch(err){}
       }
@@ -157,12 +158,11 @@ class StatsCore extends React.Component {
     try{
     let team = getTeamText(event.ntId)
     for(let i=0;i<mapstate[event.rId].length;i++){
-     //console.log(mapstate[event.rId]) 
       let item = mapstate[event.rId][i]
+
       if(event.x==item.x&&event.y==item.y){
-        //console.log(event,item)
         if(event.niT==item.iconType&&team==item.teamId&&event.nf==item.flags){
-          //console.log("False event",event,item)
+
           return false
         }
         let timeindex = Math.ceil((event.d-startdate)/scale)
@@ -170,25 +170,25 @@ class StatsCore extends React.Component {
         if(team!=item.teamId){
           if(team=="NONE"){
             timeline.wincondition[timeindex][getTeamId(item)-1][item.iconType-5]--;
-            //console.log("Win condition lose",U.copy(item),event)
+
             if(item.flags&0x20){
-            //  console.log("Win condition lose victory",U.copy(item),event)
+
               timeline.wincondition[timeindex][getTeamId(item)-1][3]--;
             }
           }else{
             if(item.teamId!="NONE"){
-             // console.log("Win condition capture from someone",U.copy(item),event)
+
               timeline.wincondition[timeindex][getTeamId(item)-1][item.iconType-5]--;
             }
-            //console.log("Win condition capture",U.copy(item),event)
+
             timeline.wincondition[timeindex][event.ntId-1][event.niT-5]++;
           }
         }else if(event.niT!=item.iconType&&item.teamId!="NONE"){
-          //console.log("Win condition upgrade",U.copy(item),event)
+
           timeline.wincondition[timeindex][getTeamId(item)-1][item.iconType-5]--;
           timeline.wincondition[timeindex][getTeamId(item)-1][event.niT-5]++;
         }else if(event.nf!=item.flags&&event.nf&0x20){
-          //console.log("Win condition upgrade to victory",U.copy(item),event)
+
           timeline.wincondition[timeindex][getTeamId(item)-1][3]++;
         }
         }
@@ -208,7 +208,7 @@ class StatsCore extends React.Component {
       }
     }
     }catch(err){
-      //console.log(event.rId,mapstate[event.rId],err)
+
     }
   }
     
@@ -236,7 +236,7 @@ class StatsCore extends React.Component {
       return false
     }
     if(nextProps.stats.warstats==undefined&&nextProps.tab.tab==5){
-      //console.log("Loading stats...")
+
       var request = new XMLHttpRequest();
       request.responseType = "json"
       request.open('GET', window.location.origin+'/getcurrentwar', true); 
@@ -245,7 +245,7 @@ class StatsCore extends React.Component {
         try{
           //let data= this.response
           store.dispatch(A.setStats(this.response))
-          //console.log("Setting war",data.startpoint.number,comp)
+
           }catch(err){}
         }
       }
@@ -254,14 +254,14 @@ class StatsCore extends React.Component {
     return true
   }
   render(){
-    //console.log("Rendering stats core")
+
      if(this.props.stats.warstats==undefined){
       return <div id="stats_placeholder" >
       <div />
       </div>
       
     }
-    /*console.log("Stats core state",this.state,this.props)
+    /*
     let startpoint = {}
     try{
     startpoint = {original:JSON.parse(JSON.stringify(this.state.currentwar.startpoint))}
@@ -270,7 +270,6 @@ class StatsCore extends React.Component {
     }
     startpoint.dynamic=JSON.parse(startpoint.original.dynamic)
     startpoint.static = JSON.parse(startpoint.original.static)
-    //console.log("Start point",startpoint.dynamic)
     let timeline ={total:[[0,0,0]],spec:{events:[[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]]],
                                          sum:[[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]]],
                                         delta:[[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]]],
@@ -291,7 +290,6 @@ class StatsCore extends React.Component {
       timelimit = this.state.currentwar.warstats.conquestEndTime
       stats.currentwar.events = this.state.currentwar.events
     }
-    //console.log(timecounter,timelimit)
     while(timecounter<timelimit){
       timeline.total.push([0,0,0])
       timeline.spec.events.push([[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]])
@@ -336,7 +334,7 @@ class StatsCore extends React.Component {
         startpoint.static[i].data=JSON.parse(startpoint.static[i].data)
     }
     /////////////CASUALTY GRAPH///////////////////////////////////////////////
-    //console.log("Maps",maplist)
+
     let prevtotalcas = undefined
     for(let i =0;i<this.state.currentwar.reports.length;i++){
       let report = this.state.currentwar.reports[i]
@@ -348,7 +346,7 @@ class StatsCore extends React.Component {
         totalcas.c +=wr[region].c
         totalcas.w +=wr[region].w
         }catch(err){
-          //console.log(wr,region,err)
+
         }
       }
       timeline.cas.push({x:i,y:totalcas.c-totalcas.w})
@@ -365,10 +363,10 @@ class StatsCore extends React.Component {
       }
       let recorded = false
       function recordEvent(obj){
-        //console.log(obj.iT,action)
+
         let event = JSON.parse(JSON.stringify(obj))
         if(event.iT==35){
-          //console.log("Safehouse event",action,event)
+
           safehousecount++;
         }
         let teamprop = "c"
@@ -388,7 +386,7 @@ class StatsCore extends React.Component {
       }
       let timeindex = Math.floor((event.d-startpoint.original.date)/scale)+1
       let counter = GetCounter(event.iT)
-      //console.log(new Date(event.d),timeindex,event)
+
       let building=[false,false]
       if(event.f&0x04){
         building[0]=true;
@@ -399,7 +397,7 @@ class StatsCore extends React.Component {
       if((event.ntId==0&&event.tId!=0&&((!building[0])||event.niT==6||event.niT==7))||
          (event.ntId!=0&&event.tId==event.ntId&&!building[0]&&building[1]&&event.niT!=6&&event.niT!=7)){
         recorded=true
-        //console.log("Lose event")
+
         timeline.total[timeindex][0]++
         timeline.spec.events[timeindex][0][counter]++
         if(event.tId==1){
@@ -409,7 +407,7 @@ class StatsCore extends React.Component {
           timeline.total[timeindex][2]--
           timeline.spec.events[timeindex][2][counter]--
         }else{
-          console.log("error event lose",event)
+
         }
       }
       if(event.niT!=6&&event.niT!=7&&event.ntId!=0&&(!building[1])&&((building[0])||((!building[0])&&event.tId==0))){
@@ -429,14 +427,13 @@ class StatsCore extends React.Component {
           timeline.spec.caplost[timeindex][1]++
           timeline.spec.caplosteach[timeindex][1][counter]++
         }else{
-          console.log("error event win",event)
+
         }
-        //console.log(event,"win")
+
         recordEvent(event)
       }
       if(!recorded&&!(event.f&0x04&&event.tId!=0&&event.ntId==0)){
-  
-        //console.log("Not recorded",event)
+
       }
     }
     for(let i=1;i<timeline.total.length;i++){
@@ -473,9 +470,6 @@ class StatsCore extends React.Component {
       timeline.totalgraph.push({x:i,n:snap[0],c:snap[1],w:snap[2]})
       
     }
-        //console.log("Timeline",timeline)
-    //console.log(timeline)
-    //console.log("Safehouse count",safehousecount)
 
     //STRUCTURE COUNT SECTION ENDS
     ///CONDITION SECTION
@@ -589,7 +583,6 @@ class StatsGraphic extends React.Component {
     this.onChangeSlider=this.onChangeSlider.bind(this)
     }
     /*static getDerivedStateFromProps(props, state){
-      //console.log("Deriving slider",props.startpoint.original.number,state.warnumber)
       
       if(props.startpoint.original.number==state.warnumber){
         return {}
@@ -608,7 +601,6 @@ class StatsGraphic extends React.Component {
       }
     }*/
   ApplyEvent(olddynamic,event,eventIndex){   
-    //console.log("Applying event")
     let dynamic = JSON.parse(JSON.stringify(olddynamic))
     /*if(window.statsignore.includes(event.rId)){
         return dynamic;
@@ -632,7 +624,7 @@ class StatsGraphic extends React.Component {
                 item.teamId="WARDENS"
                 break;
             }
-            //console.log("Applying event",olddynamic,dynamic,event,eventIndex)
+
             return dynamic;
             break;
           }
@@ -640,7 +632,7 @@ class StatsGraphic extends React.Component {
         break;
       }
     }
-    console.log("No match",event,eventIndex)
+
     return dynamic
   }
     PlayTimelapse(){
@@ -660,7 +652,7 @@ class StatsGraphic extends React.Component {
     }
       this.timer = setInterval(() => {
         if(this.state.time>Date.now()/*||this.props.previous&&this.state.time>this.props.EndTime*/){
-          //console.log(this.state.dynamic)
+
           clearInterval(this.timer);
         }else{
         let events = this.props.currentwar.events//this.props.stats.currentwar.events
@@ -668,11 +660,7 @@ class StatsGraphic extends React.Component {
         let dynamic = this.state.dynamic
         //let eventcounter = 0
         try{
-          //console.log("time",this.state.time,"events",events[eventIndex])
-          //console.log("Applying event 1",new Date(this.state.time), new Date(events[eventIndex].d))
         while(events[eventIndex].d<this.state.time){
-          //console.log(eventIndex)
-          //console.log("Applying event 2")
           dynamic = this.ApplyEvent(dynamic,events[eventIndex],eventIndex)
           eventIndex++
           //eventcounter++
@@ -682,7 +670,7 @@ class StatsGraphic extends React.Component {
         if(this.props.previous&&newtime>this.props.currentwar.warstats.conquestEndTime||newtime>Date.now()){
           this.StopTimelapse()
         }
-          //console.log("eventcounter",eventcounter)
+
         this.setState({
           time: newtime,
           eventIndex:eventIndex,
@@ -707,20 +695,17 @@ class StatsGraphic extends React.Component {
   onChangeSlider(e){
     let eventindex = 0;
      let dynamic= U.copy(this.props.startpoint.dynamic)
-     //console.log("Changing time",e,dynamic,this.props.currentwar.events)
+
       for(let i=0;i<this.props.currentwar.events.length;i++){
         let event = this.props.currentwar.events[i]
         if(event.d>e){
-          //console.log("Timelapse event index",i)
           eventindex=i
           break
         }else{
-          //console.log("Prev dynamic",dynamic)
           try{
           dynamic=this.ApplyEvent(dynamic,event,i)
           }catch(err){
-            console.log(err)
-            console.log(dynamic,event,i,this.props.time)
+
             break;
           }
         }
@@ -728,8 +713,6 @@ class StatsGraphic extends React.Component {
      this.setState({timelapseOn:true,time:e,dynamic:dynamic,eventIndex:eventindex})
   }
   render(){
-    //console.log("Stats state",this.state)
-    //console.log("Stats graphic props",this.props,this.state.dynamic)
    /* let condition = this.props.condition
     let counters = this.props.counters
     let state=this.props.state
@@ -750,7 +733,7 @@ class StatsGraphic extends React.Component {
       wincondition:timeline.wincondition[timelineindex]}
     //}
     let diverge = this.state.timerOn||this.state.sliderOn*/
-    return <React.Fragment>
+    return <>
     <p>Statistics {/*<span id="statsp">Press F11 for Fullscreen</span>*/}</p> 
     {/*
        <div  className="row">  
@@ -788,7 +771,7 @@ class StatsGraphic extends React.Component {
         <TopTowns timelinesnap={timelinesnap} startpoint={startpoint}/>
          </div>
       </div> */}
-    </React.Fragment>
+    </>
   }
 }
 /////////////////////////////////////////////////
@@ -809,7 +792,6 @@ class PlayersGraph extends React.Component {
       return false
     }
   render(){
-    //console.log("Players graph stats",this.props)
   const PlayerTooltip = ({ active, payload, label }) => {
   if (active&&payload!=null) {
     let time = this.props.timerStart+Number(label)*600000
@@ -841,10 +823,10 @@ class PlayersGraph extends React.Component {
     }
   let startindex = timeindex>(this.state.dayscale*this.state.oneday)? (timeindex-this.state.dayscale*this.state.oneday):0
       for(let i = startindex;i<timeindex;i++){
-        try{datapoints.push({x:i,y:this.props.stats.currentwar.reports[i].pop})}catch(err){console.log("Pop error",i)}
+        try{datapoints.push({x:i,y:this.props.stats.currentwar.reports[i].pop})}catch(err){}
       }
     }
-    //console.log("Player graph datapoints",datapoints,this.props.previous,this.props.timerOn)
+
    return <div  className="stats_div">
         <p className="stats_div_header">Players Online: <AnimatedNumber value={totalplayers} duration={600} stepPrecision={0}/></p> 
      <Recharts.LineChart
@@ -876,18 +858,17 @@ class StructureCount extends React.Component {
     let checkstart = Date.now()
   try{ if(JSON.stringify(nextProps.scount)!=JSON.stringify(this.props.scount)||this.props.timerOn!=nextProps.timerOn||
     nextProps.timerOn&&(JSON.stringify(nextProps.timelinesnap)!=JSON.stringify(this.props.timelinesnap))){
-    //console.log("Checked structure count",Date.now()-checkstart)
+
       return true
     }}catch(err){}
       return false
   }
 render(){
-  //console.log("Structure count props",this.props)
   let scount = this.props.scount;
   if(this.props.timerOn){
     try{
     let s = this.props.timelinesnap.spec //[i][0][0] - cap c, [i][0][1] - cap w, [i][1][0] - lose c, [i][1][1] - lose w]
-    //console.log(s)
+
     scount={captured:{c:s.caplost[0],w:s.caplost[1]},each:{}}
     for(let i=0;i<objimg.length;i++){
       scount.each[objimg[i].icontype]={c:s.caplosteach[0][i],w:s.caplosteach[1][i]}
@@ -934,10 +915,10 @@ class WarStats extends React.Component { //Conquest X, Day Y Underway since
     }
     /*
     if(JSON.stringify(this.props.stats)!=JSON.stringify(nextProps.stats)){
-     console.log("Checked war stats",Date.now()-checkstart)
+
        return true
     }*/
-    //console.log("Checked war stats",Date.now()-checkstart)
+
     return false
   }
   componentDidMount() {
@@ -1007,14 +988,14 @@ class  WinCondition extends React.Component {
   render(){
     let condition = JSON.parse(JSON.stringify(this.props.condition))
     if(this.props.timerOn){
-      //console.log("ayy")
+
     try{
       condition=this.props.timelinesnap.wincondition
     }catch(err){
-      console.log("Win condition error",err)
+
     }
   }
-    //console.log("Win condition",condition)
+
     let warmode = null
       if(this.props.stats.warstats!=undefined){
     if(this.props.stats.warstats.conquestEndTime>1&&
@@ -1022,20 +1003,20 @@ class  WinCondition extends React.Component {
       warmode= "Resistance"
     }else{warmode= "Conquest"}
         }
-    return <React.Fragment>
+    return <>
       <p className="stats_div_header">State of the war: {warmode}</p>
         <div className="stats_table_towns">
         <table><tbody>
           <tr>{GetCondition("https://raw.githubusercontent.com/the-fellowship-of-the-warapi/Assets/master/Map%20Icons/Bases/MapIconStaticBase1Colonial.png",condition[0][0])}
             {GetCondition("https://raw.githubusercontent.com/the-fellowship-of-the-warapi/Assets/master/Map%20Icons/Bases/MapIconStaticBase2Colonial.png",condition[0][1])}
             {GetCondition("https://raw.githubusercontent.com/the-fellowship-of-the-warapi/Assets/master/Map%20Icons/Bases/MapIconStaticBase3Colonial.png",condition[0][2],<span>(<span className="stats_table_counter_special">{condition[0][0]+condition[0][1]+condition[0][2]}</span>)</span>,true)}
-            {GetCondition("https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2FCivicCenterColonial.png?v=1560693262971",condition[0][3],<React.Fragment>/<span className="stats_table_counter_special">{this.props.limit}</span></React.Fragment>,true)}
+            {GetCondition("https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2FCivicCenterColonial.png?v=1560693262971",condition[0][3],<>/<span className="stats_table_counter_special">{this.props.limit}</span></>,true)}
           </tr>
           <tr>{GetCondition("https://raw.githubusercontent.com/the-fellowship-of-the-warapi/Assets/master/Map%20Icons/Bases/MapIconStaticBase1Warden.png",condition[1][0])}
             {GetCondition("https://raw.githubusercontent.com/the-fellowship-of-the-warapi/Assets/master/Map%20Icons/Bases/MapIconStaticBase2Warden.png",condition[1][1])}
             {GetCondition("https://raw.githubusercontent.com/the-fellowship-of-the-warapi/Assets/master/Map%20Icons/Bases/MapIconStaticBase3Warden.png",condition[1][2],<span>(<span className="stats_table_counter_special">{condition[1][0]+condition[1][1]+condition[1][2]}</span>)</span>,true)}
-            {GetCondition("https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2FCivicCenterWarden.png?v=1560693266377",condition[1][3],<React.Fragment>/<span className="stats_table_counter_special">{this.props.limit}</span></React.Fragment>,true)}
-          </tr></tbody></table></div></React.Fragment> 
+            {GetCondition("https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2FCivicCenterWarden.png?v=1560693266377",condition[1][3],<>/<span className="stats_table_counter_special">{this.props.limit}</span></>,true)}
+          </tr></tbody></table></div></> 
 }}
 //////////////////////////////////
 class  WinCount extends React.Component {
@@ -1066,7 +1047,6 @@ class  WinCount extends React.Component {
 }
 //////////////////////////////////
 const mapStateToProps = store => {    //Importing props from store
-  //console.log(store) 
   let roominfo = store.roominfo
   return {
     dynamic:roominfo.dynamic,
@@ -1172,7 +1152,7 @@ function FillReportGaps(reports,starttime,endtime,startpoint){
     for(let i in dynamic){
       maplist.push(dynamic[i].regionId)
     }
-    //console.log("Maps",maplist)
+
     let prevtotalcas = undefined
     for(let i =0;i<reports.length;i++){
       let report = reports[i]
@@ -1185,7 +1165,6 @@ function FillReportGaps(reports,starttime,endtime,startpoint){
       }
       for(let j in maplist){
         if((!wr[maplist[j]]||wr[maplist[j]]<oldwr[maplist[j]])&&i>0){
-          //console.log("Fixing report",maplist[j],oldwr)
           wr[maplist[j]]=oldwr[maplist[j]]
         }
       }

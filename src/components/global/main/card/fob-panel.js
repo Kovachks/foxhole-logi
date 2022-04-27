@@ -38,7 +38,7 @@ for(var i=0;i<3;i++){
   }
 }
 return(
-  <React.Fragment>
+  <>
     <UR.DeletePopover header={"Delete outpost?"} type={"fobs"} signature={this.props.selected.key}/>
     <div className="fob_card_container">
     <button className={classes[0]} disabled={side==0} onClick={()=>this.handleChangeSide(0)}/>
@@ -55,7 +55,7 @@ return(
       </select>
     </div>
 
-  </React.Fragment>
+  </>
   )
 }
 }
