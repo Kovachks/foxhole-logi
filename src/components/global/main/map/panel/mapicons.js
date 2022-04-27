@@ -248,10 +248,10 @@ class MapIcons_ extends React.Component {
       const items = (zoom > 1) ? this.GetDynamicIcons() : [];
       const privateItems = (zoom > 1) ? this.GetPrivateIcons(): [];
       return(
-          <React.Fragment>
+          <>
             { items }
             { privateItems }
-          </React.Fragment>
+          </>
       );
     }
 }

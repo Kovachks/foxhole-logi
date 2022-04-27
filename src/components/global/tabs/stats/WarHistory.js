@@ -84,7 +84,6 @@ class WarHistory extends React.Component {
   }
 
   render() {
-    // console.log("Rendering war history")
     const rows = [];
     const { oldwars } = this.props;
     for (let i = this.props.warhistory.length - 1; i >= 0; i--) {
@@ -168,7 +167,7 @@ class WarHistory extends React.Component {
     for (let i = 0; i < rows.length; i++) {
       rows[i] = this.GetRow(rows[i]);
     }
-    // console.log("War history",this.state,this.props.warhistory)
+
     return (
       <table id="stats_warhistory_container">
         <thead>

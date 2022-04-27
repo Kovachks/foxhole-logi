@@ -8,7 +8,7 @@ import socket from '../../../_static/socket';
 const InputMask = require('react-input-mask');
 
 function Tabs(props) {
-  //console.log("Tabs props",props)
+
   let requestcounter = 0;
   for(var i =0;i<props.users.users.length;i++){
     if(props.users.users[i].rank==5){
@@ -94,13 +94,12 @@ class OpTimer_ extends React.Component{
 
     handleSetDate(event){
       let value = event.target.value
-      //console.log(event.target.value)
+
     this.setState({
       date:value
     })
   }
   handleChangeTime(event){
-    //console.log(event.target.value)
     let value = event.target.value
     let h = value.substring(0,2)
     if(h>23){
@@ -128,8 +127,6 @@ class OpTimer_ extends React.Component{
     socket.emit('deleteSettings',"optimer")
   }
   render(){
-    //console.log("Rendering op timer")
-    //console.log("Timer props",this.props)
     let date = "OP starts on ----"
     function GetDateString(date){
       function addZero(num){
@@ -189,7 +186,6 @@ class OpTimer_ extends React.Component{
 }
 
 const mapStateToProps = store => {
-  //console.log(store)
   return {
     users:store.users,
     tab:store.tab
@@ -227,7 +223,7 @@ class Top_ extends React.Component{
         break;
          }
     }
-    //console.log(this.props.users.users)
+
 if(window.steamid.includes("anonymous")){
   profile.avatar="https://cdn.glitch.com/dd3f06b2-b7d4-4ccc-8675-05897efc4bb5%2Fdasd.jpg?1556805827222"
 }
@@ -303,7 +299,6 @@ const mapStateToPropsRefTotal = store => {    //Importing props from store
   }
 }
 const mapStateToPropsUsers = store => {    //Importing props from store
-  //console.log(store)
   return {
     users: store.users,
   }

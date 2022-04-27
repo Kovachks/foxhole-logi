@@ -46,7 +46,7 @@ class RequestContainer extends React.Component {
     for(var x = 0;x<mywip.request.length;x++){
       var item = mywip.request[x];
       let obj = request.done.find(obj => obj.catid == item.catid&&obj.itemid == item.itemid);
-      //console.log(JSON.parse(JSON.stringify(item)));
+
       if(obj===undefined){
         request.done.push(clone(item));
                        }else{
@@ -73,7 +73,7 @@ class RequestContainer extends React.Component {
       for(var j =0;j<request.request[i].length;j++){
         let obj = request.request[i][j]
         let item = done.find(item => obj.catid == item.catid&&obj.itemid == item.itemid);
-        //console.log("Request items",obj,item)
+
         if(item==undefined){
           return false;
         }else{
@@ -116,7 +116,6 @@ class RequestContainer extends React.Component {
   
   
   render(){
-    //console.log("Rendering request card")
     if(this.props.selected.type!="requests"){
       return null
     }
@@ -141,8 +140,7 @@ class RequestContainer extends React.Component {
           otherProductions.push(<OtherProductionCard avatar={U.GetAvatar(this.props.users.users,wip.author)} author={author} request={wip.request} margin={margin}/>)
       }
     }
-    //console.log(this.props);
-    //console.log("Rendering request card")
+
     let renderMyProduction = false
     let myproduction = FindMyProduction(this.props.requests[this.props.selected.key].wip)
     if(myproduction!=-1){
@@ -151,8 +149,8 @@ class RequestContainer extends React.Component {
       }
     }
   return(
-    <React.Fragment>
-    {this.props.selected.type=="requests" ? <React.Fragment>
+    <>
+    {this.props.selected.type=="requests" ? <>
       <div id="requestcardcontainer">
         <RequestCard ref={(card) => {window.requestcard = card }} users={this.props.users} request={this.props.requests[this.props.selected.key]} signature={this.props.selected.key} /*What needs to be done?*//>
         </div>
@@ -160,8 +158,8 @@ class RequestContainer extends React.Component {
           {renderMyProduction && <MyProductionCard ref={(card) => {window.myproductioncard = card }} request={this.props.requests[this.props.selected.key].wip[myproduction]} SubmitItems={this.SubmitItems} RemoveItem={this.RemoveItem} handleAmountChange={this.handleAmountChange}/> /*What am I doing?*/}
       </div>   
         {otherProductions/*What are other folks doing?*/}
-    </React.Fragment> : null}
-      </React.Fragment>
+    </> : null}
+      </>
   )
   }
 }
@@ -188,7 +186,7 @@ class RequestCard extends React.Component { //What needs to be done?
     let packet = clone(this.props.request)
     let wip
     let defaultitem = cost.cost[obj.catid][obj.itemid]
-    //console.log("index = "+index);
+
     if(index==-1){
       wip={author:window.steamid,request:[{amount:defaultitem.i,crates:1,catid:obj.catid,itemid:obj.itemid}]}
       packet.wip.push(wip)
@@ -281,12 +279,12 @@ class RequestCard extends React.Component { //What needs to be done?
         break;
     }
     let lines = [];
-    //console.log(this.state);
+
     if(this.props.request.request!=undefined){
     for(var i=0;i<this.props.request.request[index].length;i++){
      lines.push(GetLine(this.props.request.request[index],i))
     }}
-    return(<React.Fragment>
+    return(<>
       <div data-toggle="collapse" href={"#cardreq"+headertype} className={"card-header cardheader "+headerclass}>
         <table>
           <thead>
@@ -305,7 +303,7 @@ class RequestCard extends React.Component { //What needs to be done?
         <table className="table"><tbody>
           {lines}
           </tbody></table></div>
-    </React.Fragment>
+    </>
     )
   }
   
@@ -322,7 +320,7 @@ class RequestCard extends React.Component { //What needs to be done?
       for(var x = 0;x<mywip.request.length;x++){
         var item = mywip.request[x];
         let obj = merge.find(obj => obj.catid == item.catid&&obj.itemid == item.itemid);
-        //console.log(JSON.parse(JSON.stringify(item)));
+
         if(obj===undefined){
           merge.push(clone(item));
         }else{
@@ -335,7 +333,7 @@ class RequestCard extends React.Component { //What needs to be done?
   }
   
   render(){
-    //console.log(this.props.request)
+
     let priorities = [];
     let totalwip = this.MergeWIPs()
     let done = []
@@ -344,10 +342,9 @@ class RequestCard extends React.Component { //What needs to be done?
     for(var i=0;i<3;i++){
       priorities.push(this.GetPriority(i,totalwip,done))
     }
-   // console.log("Total WIP");
-   // console.log(totalwip)
+
     return(
-    <React.Fragment> <div className="card">
+    <> <div className="card">
   <div className="card-header cardheader">
   <table>
     <tbody>
@@ -379,7 +376,7 @@ class RequestCard extends React.Component { //What needs to be done?
   <UR.LastUpdate />
   <UR.Notes />
 </div>
-   </React.Fragment>);
+   </>);
   }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -409,16 +406,13 @@ class MyProductionCard extends React.Component {
   }
   
   render(){
-    //console.log("Rendering production card");
-    //console.log(this.props.request);
     if(this.props.request.length==0){return null}else{
   let show = this.props.request.request.length>0
   let prodlines = []
   for(var i=0;i<this.props.request.request.length;i++){
     prodlines.push(this.GetLine(i))
   }
-      //console.log("Prodlines");
-      //console.log(prodlines);
+
     return (<div className="card">
         <Popover.default
             isOpen={this.state.isPopoverOpen}
@@ -507,7 +501,6 @@ class OtherProductionCard extends React.Component{
 
 
 const mapStateToProps = store => {
-  //console.log(store) 
   let privateinfo = store.private;
   return {
     requests:privateinfo.requests,

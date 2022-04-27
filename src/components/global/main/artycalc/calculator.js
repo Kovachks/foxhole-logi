@@ -170,7 +170,7 @@ class ArtyCalc_ extends React.Component {
       lines.push(this.GetLine(this.props.arty.arty.length - 1 - i));
     }
     return (
-      <React.Fragment>
+      <>
         <div id="arty_calc_col_container">
           <div id="box" className="horizontal container">
             <button
@@ -322,7 +322,7 @@ class ArtyCalc_ extends React.Component {
             </ul>
           </div>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

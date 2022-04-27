@@ -267,7 +267,7 @@ exports.pullStatic = function () {
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
         try {
-          //logger.info(this.response);
+          logger.info(this.response);
           var data = this.response;
           let mapData = {
             regionName: value,
@@ -300,20 +300,20 @@ exports.cunt = function test(string) {
   logger.info('Foxhole War API module ' + string);
 };
 
-////////////////////////////////////////////////////////////////////////
-function findclosest(town, labellist) {
-//if(labellist!=undefined){
-  //logger.info(town);
-  for (var i = 0; i < labellist.length; i++) {
-    var xdif = Math.abs(town.x - labellist[i].x);
-    var ydif = Math.abs(town.y - labellist[i].y);
-    var distance = Math.sqrt(Math.pow(xdif, 2) + Math.pow(ydif, 2));
-    labellist[i].distance = distance;
-  }
-  labellist.sort(compare);
-  //logger.info(labellist[0]);
-  return labellist[0];
-}
+// ////////////////////////////////////////////////////////////////////////
+// function findclosest(town, labellist) {
+// //if(labellist!=undefined){
+//   //logger.info(town);
+//   for (var i = 0; i < labellist.length; i++) {
+//     var xdif = Math.abs(town.x - labellist[i].x);
+//     var ydif = Math.abs(town.y - labellist[i].y);
+//     var distance = Math.sqrt(Math.pow(xdif, 2) + Math.pow(ydif, 2));
+//     labellist[i].distance = distance;
+//   }
+//   labellist.sort(compare);
+//   //logger.info(labellist[0]);
+//   return labellist[0];
+// }
 
 //}
 

@@ -34,7 +34,7 @@ function GridLines_(props){
             }
         }
     }
-    return <React.Fragment>{gridlines}</React.Fragment>
+    return <>{gridlines}</>
 }
 
 const mapStateToProps = store => {

@@ -40,13 +40,11 @@ class TechMap_ extends React.Component {
     return false;
   }
   HandleZoom(zoom) {
-    //console.log(zoom)
     this.setState({
       zoom: zoom
     });
   }
   render() {
-    //console.log("Rendering tech map")
     let bounds = [[0, 0], [1170, 2540]];
     let techlist = tech.map((obj, index) => (
       <Tech
@@ -66,7 +64,6 @@ class TechMap_ extends React.Component {
         onZoomend={event => {
           this.HandleZoom(event.target._zoom);
           //zoom=event.target._zoom
-          //console.log(zoom)
         }}
         center={[bounds[1][0] / 2, bounds[1][1] / 2]}
         zoomAnimation={false}
@@ -137,7 +134,6 @@ class Tech extends React.Component {
         iconUrl: obj.url
       }
     });
-    //console.log(this.props.obj)
     let techlevel = 0;
     if (this.props.techtree[obj.name] != undefined) {
       techlevel = this.props.techtree[obj.name];
@@ -148,7 +144,7 @@ class Tech extends React.Component {
     //return L.rectangle(bounds, {color: color, weight: 1,fillOpacity:0.8})
 
     return (
-      <React.Fragment>
+      <>
         {
           <L.Rectangle
             bounds={bounds}
@@ -162,7 +158,7 @@ class Tech extends React.Component {
           icon={new icon()}
           onClick={this.SelectTech}
         />
-      </React.Fragment>
+      </>
     );
   }
 }
@@ -175,7 +171,6 @@ class TechCard_ extends React.Component {
     this.handleChangeTech = this.handleChangeTech.bind(this);
   }
   shouldComponentUpdate(nextProps, nextState) {
-    //console.log("Tech card props",this.props,nextProps)
     if (this.props.selected.tech !== nextProps.selected.tech) {
       return true;
     }
@@ -201,14 +196,13 @@ class TechCard_ extends React.Component {
 
   handleChangeTech(value) {
     let techtree = JSON.parse(JSON.stringify(this.props.techtree.techtree));
-    //console.log("Techtree",techtree)
+
     let obj = tech[this.props.selected.tech];
     if (value != obj.needtech) {
       if (value == "") {
         value = 0;
       }
       if (value > obj.needtech) {
-        //console.log(value); console.log(limit)
         value = obj.needtech;
       }
       try {
@@ -320,14 +314,12 @@ class TechCard_ extends React.Component {
 }
 
 const mapStateToProps = store => {
-  //console.log(store)
   return {
     techtree: store.techtree,
     tab: store.tab
   };
 };
 const mapStateToPropsCard = store => {
-  //console.log(store)
   return {
     techtree: store.techtree,
     selected: store.selected

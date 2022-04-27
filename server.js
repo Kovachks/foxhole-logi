@@ -1,23 +1,23 @@
 // server.js
-// where your node app starts
 const onetime = require('./onetimers')
 
 const conf = require('./conf/config');
 const logger = conf.logger;
+require('dotenv').config();
 
-
-require('dotenv')
-  .config();
-
-//OTHER SERVER MODULES MADE BY US
-const discordbot = require('./discordbot.js'); //SHUTDOWN UNTIL FURTHER NOTICE
+const express = require('express');
 
 const db = require('./dbfunctions.js');
 const warapi = require('./warapi.js');
 const socket = require('./socket.js');
 
+// controllers
+const {
+  userRoom,
+  users
+} = require('./src/api/controllers')
+
 // init project
-const express = require('express');
 const app = express();
 var http = require('http')
   .Server(app);
@@ -25,6 +25,7 @@ var session = require('express-session');
 
 var passport = require('passport');
 const shortid = require('shortid');
+const { Console } = require('console');
 
 var SteamStrategy = require('passport-steam').Strategy;
 const apikey = process.env.KEY;
@@ -84,15 +85,17 @@ app.get('/auth/steam',
 
 app.get('/auth/steam/return',
   passport.authenticate('steam', { failureRedirect: '/' }),
-  function (req, res) {
+  async (req, res) => {
     var salt = shortid.generate();
-    //console.log("User "+req.user._json.steamid+" "+req.user._json.personaname+" has logged on");
-    //discordbot.auth(req.user._json.steamid,req.user._json.personaname);
-    if (!db.existscheck(req.user._json.steamid)) {
-      db.insertuser.run(req.user._json.steamid, salt, req.user._json.personaname, req.user._json.avatarmedium);
+
+    try {
+    const userExists = await users.getUserBySteamId(req.user._json.steamid)  
+
+    if ((userExists && userExists.length === 0) || !userExists) {
+      await users.postUser([req.user._json.steamid, salt, req.user._json.personaname, req.user._json.avatarmedium])
     } else {
       salt = db.getaccount(req.user._json.steamid).salt;
-      db.updateuser.run(req.user._json.personaname, req.user._json.avatarmedium, req.user._json.steamid);
+      users.updateUser([req.user._json.personaname, req.user._json.avatarmedium, req.user._json.steamid])
     }
     //res.clearCookie('')
     res.cookie('steamid', req.user._json.steamid);
@@ -106,15 +109,17 @@ app.get('/auth/steam/return',
       var id = cookiestring.substring(cookiestring.indexOf(' redir_room') + 12, cookiestring.indexOf(' redir_room') + 21);
       res.redirect('/room/' + id);
     }
+  } catch (e) {
+    logger.error(e)
+  }
   });
 app.post('/noauth', function (req, res) {
   var idsalt = shortid.generate()
     .slice(0, 8);
   var salt = shortid.generate();
-  db.insertuser.run('anonymous' + idsalt, salt, req.query.name, new Date().toString());
+  users.postUser([`anonymous${idsalt}`, salt,  req.query.name, new Date().toString()])
   res.cookie('steamid', 'anonymous' + idsalt);
   res.cookie('salt', salt);
-  //console.log("Anonymous login",idsalt)
   if (req.headers['cookie'] == undefined) {
     res.send({ redir: false });
     //res.redirect('/');
@@ -122,10 +127,9 @@ app.post('/noauth', function (req, res) {
     res.send({ redir: false });
     //res.redirect('/');
   } else {
-    //console.log("redirecting noauth")
     var cookiestring = req.headers['cookie'];
     var id = cookiestring.substring(cookiestring.indexOf(' redir_room') + 12, cookiestring.indexOf(' redir_room') + 21);
-//console.log("redir room",id)
+
     res.send({
       redir: true,
       redirId: id
@@ -159,31 +163,32 @@ app.get('/', function (request, response) {
   } else {
     response.redirect('/auth');
   }
-});
+})
 
 //Get users profile from the DB
-app.post('/getprofile', function (request, response) {
-  if (db.logincheck(request)) {
-    var id = request.query.id;
-    var account = db.getaccount(id);
-//console.log(id)
-//console.log(request.query);
+app.post('/getprofile', async (request, response) => {
+  const isUserLoggedOn = await db.logincheck(request)
+
+  if (isUserLoggedOn) {
+    var id = request.query.id
+    var account = await users.getUserBySteamId(id)
     var packet = {
       name: account.id,
       name: account.name,
       blueprint: account.blueprint,
       avatar: account.avatar
-    };
-    //console.log(packet);
+    }
+
     response.send(packet);
   } else {
-    response.redirect('/auth');
+    response.redirect('/auth')
   }
 });
 
 //Get info on rooms connected to a profile
-app.post('/getuserrooms', function (request, response) {
-  var rooms = db.getrooms(request.query.id);
+app.post('/getuserrooms', async (request, response) => {
+  var rooms = await db.getrooms(request.query.id)
+
   response.send(rooms);
 });
 
@@ -207,32 +212,32 @@ app.post('/leaveroom', function (request, response) {
 
 //Authorization page
 app.get('/auth', function (request, response) {
-  response.sendFile(__dirname + '/views/auth.html');
+  response.sendFile(__dirname + '/views/auth.html')
 });
-
 
 //Request page for a room - get link
 app.get('/request/:id', function (request, response) {
   if (db.logincheck(request)) {
-    response.sendFile(__dirname + '/views/request.html');
+    console.log('this is probably true')
+    response.sendFile(__dirname + '/views/request.html')
   } else {
-    response.redirect('/auth');
+    response.redirect('/auth')
   }
 });
 
 //Request page, part 2 - return user status in the room
-app.post('/request2', function (request, response) {
-  var globalid = request.query.id;
-  var account = parsecookies(request);
-  var rank = db.getmembership(account.id, globalid);
-  var roominfo = db.getroominfo(globalid);
-  //console.log(roominfo);
+app.post('/request2', async (request, response) => {
+  var globalid = request.query.id
+  var account = parsecookies(request)
+  var rank = await db.getmembership(account.id, globalid)
+  var roominfo = await db.getroominfo(globalid)
+
   if (!roominfo) {
-    var packet = { rank: 8 };
-    //console.log(packet);
-    response.send(packet);
+    var packet = { rank: 8 }
+    response.send(packet)
   } else {
-    let settings = JSON.parse(roominfo.settings);
+    console.log(roominfo)
+    let settings = JSON.parse(roominfo.settings)
     var packet = {
       rank: rank,
       roomname: settings.name,
@@ -240,7 +245,7 @@ app.post('/request2', function (request, response) {
       admin: roominfo.adminname,
       adminid: roominfo.adminid
     };
-    //console.log(packet);
+
     response.send(packet);
   }
 });
@@ -250,18 +255,18 @@ app.post('/request3', function (request, response) {
   var globalid = request.query.globalid;
   var account = parsecookies(request);
   var rank = db.getmembership(account.id, globalid);
-  //console.log(rank);
+
   if (rank == 8) {
     response.redirect('/');
   }
   if (rank == 7) {
-    db.insertrelation.run(account.id + globalid, account.id, globalid, 5, '[0,0]');
+    userRoom.postUserRoom([account.id, globalid, 5, '[0,0]'])
+    // db.insertrelation.run(account.id + globalid, account.id, globalid, 5, '[0,0]');
     var packet = {
       globalid: globalid,
       userid: account.id
     };
     socket.emitaccessrequest(packet);
-    // discordbot.requestaccess(account.id,globalid);
     response.redirect('/');
   }
 });
@@ -270,10 +275,11 @@ app.post('/request3', function (request, response) {
 app.post('/requestPassword', function (request, response) {
   var globalid = request.query.globalid;
   var account = parsecookies(request);
-  //console.log(request.originalUrl);
+
   let check = db.checkpassword(globalid, request.query.password);
   if (check) {
-    db.insertrelation.run(account.id + globalid, account.id, globalid, 3, '[0,0]');
+    userRoom.postUserRoom([account.id, globalid, 3, '[0,0]'])
+    // db.insertrelation.run(account.id + globalid, account.id, globalid, 3, '[0,0]');
     response.send('right');
   } else {
     response.send('wrong');
@@ -285,17 +291,24 @@ app.post('/createroom', function (request, response) {
   var id = shortid.generate();
   var admin = request.query.id;
   let settings = request.query.settings;
+
   db.createroom(id, admin, settings);
   response.send(id);
 });
 
 //Pulls room from a unique link
-app.get('/room/:id', function (request, response) {
-  //console.log(request.headers['cookie'] )
+app.get('/room/:id', async (request, response) => {
+  const isUserLoggedOn = await db.logincheck(request)
+  console.log('here is the first part')
+  console.log(isUserLoggedOn)
   // var order = db.get('orders').find({ id: request.params.id}).value();
-  if (db.logincheck(request)) {
-    var account = parsecookies(request);
-    var rank = db.getmembership(account.id, request.params.id);
+  if (isUserLoggedOn) {
+    console.log('-----')
+    console.log(request.params)
+    var account = parsecookies(request)
+    var rank = await db.getmembership(account.id, request.params.id);
+    console.log(account)
+    console.log(rank)
     if (rank < 4) {
       response.sendFile(__dirname + '/views/global.html');
     }
@@ -306,14 +319,13 @@ app.get('/room/:id', function (request, response) {
     response.cookie('redir_room', request.params.id);
     response.redirect('/auth');
   }
-});
-
+})
 
 //pulls room from a unique link, part 2
-app.post('/getroom', function (request, response) {
-  var packet = {};
-  packet.users = db.getroomusers(request.query.id);
-  packet.meta = db.getroominfo(request.query.id);
+app.post('/getroom', async (request, response) => {
+  var packet = {}
+  packet.users = await db.getroomusers(request.query.id);
+  packet.meta = await db.getroominfo(request.query.id);
   packet.meta.settings = JSON.parse(packet.meta.settings);
   packet.dynamic = db.getdynamic();
   packet.static = db.getstatic();
@@ -360,7 +372,6 @@ function parsecookies(request) {
 }
 
 //onetimers.wipe();
-//discordbot.cunt("loaded");
 db.cunt('loaded');
 warapi.cunt('loaded');
 socket.cunt('loaded');

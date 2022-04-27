@@ -19,7 +19,6 @@ window.userlist = {
 
 ////////////////////////////////////////SOCKET AREA BEGINS//////////////////////////////////////////////////
 socket.on("onlineusers", function(userlist) {
-  //console.log("Online users",userlist)
   window.userlist = userlist;
   for (var i = 0; i < window.userlist.users.length; i++) {
     if (window.userlist.onlineusers.includes(window.userlist.users[i].id)) {
@@ -33,7 +32,6 @@ socket.on("onlineusers", function(userlist) {
 
 //Updates changes of user ranks
 socket.on("updateusers", function(newusers) {
-  //console.log("Socket users",newusers)
   for (var i = 0; i < newusers.length; i++) {
     if (window.steamid == newusers[i].id) {
       let rank = newusers[i].rank;
@@ -64,7 +62,6 @@ class UserList extends React.Component {
     super(props);
   }
   shouldComponentUpdate(nextProps, nextState) {
-    //console.log(this.props.tab,nextProps.tab)
     if (
       JSON.stringify(this.props.tab.messagespersonal) !=
       JSON.stringify(nextProps.tab.messagespersonal)
@@ -94,7 +91,7 @@ class UserList extends React.Component {
     if (this.props.tab.tab == 5) {
       return null;
     }
-    //console.log("Rendering users")
+
     let userlist = {
       online: [],
       offline: []
@@ -129,7 +126,7 @@ class UserList extends React.Component {
           tab={this.props.tab}
         />
       ));
-    //console.log('Rendering Online Users'); do you see me?ya
+
     return (
       <div id="usrow" className="col-sm-12 col-lg-2 user_panel">
         <table className="usertable">
@@ -175,7 +172,7 @@ class UserlistUnit extends React.Component {
     //}
   }
   render() {
-    //console.log("Rendering user",props)
+
     if (this.props.user.id == "anonymous") {
       return null;
     }
@@ -213,7 +210,7 @@ class UserlistUnit extends React.Component {
             if (ref.orders[i].author == this.props.user.id) {
               let now = new Date();
               if (now < ref.orders[i].finishDate) {
-                //console.log("got refinery",ref)
+
                 statusflags[2] = true;
                 break;
                 break;
@@ -317,7 +314,7 @@ function compareonline(a, b) {
 }
 
 const mapStateToProps = store => {
-  //console.log(store)
+
   let privateinfo = store.private;
   return {
     users: store.users,
@@ -327,7 +324,6 @@ const mapStateToProps = store => {
   };
 };
 const mapStateToPropsUser = store => {
-  //console.log(store)
   let privateinfo = store.private;
   return {
     users: store.users,

@@ -33,13 +33,11 @@ class ModalContainer extends React.Component {
     } else {
       $.post('/noauth?' + $.param({ name: this.state.name }), function (packet) {
         if (packet.redir) {
-          console.log('Redirecting');
           window.location.replace('/room/' + packet.redirId);
         } else {
-          console.log('Not redirecting');
           window.location.replace('/');
         }
-        //console.log(packet)
+
         //window.location.replace('/');
       });
     }
@@ -48,7 +46,7 @@ class ModalContainer extends React.Component {
   render() {
 
     return (
-      <React.Fragment>
+      <>
         <div className='modal show' style={{ display: 'block' }}>
           <div className="modal-dialog">
             <div className="modal-content">
@@ -58,7 +56,7 @@ class ModalContainer extends React.Component {
               <div className="modal-body">
                 <div id="wrapper">
                   {this.state.noauth ?
-                    <React.Fragment><h5 className="name_input">Name: <input type="text"
+                    <><h5 className="name_input">Name: <input type="text"
                                                                             value={this.state.name}
                                                                             onChange={this.handleChangeName}/>
                     </h5>
@@ -68,13 +66,13 @@ class ModalContainer extends React.Component {
                       <button type="button" className="btn"
                               onClick={() => this.ToggleNoAuth()}>Cancel
                       </button>
-                    </React.Fragment> : <React.Fragment>
+                    </> : <>
                       <button type="button" className="btn" id="stm"
                               onClick={() => window.location.href = '/auth/steam'}></button>
                       <button type="button" className="btn"
                               onClick={() => this.ToggleNoAuth()}>Without Steam
                       </button>
-                    </React.Fragment>}
+                    </>}
                 </div>
                 <div id="inf">
                   <h5>
@@ -102,7 +100,7 @@ class ModalContainer extends React.Component {
           </div>
         </div>
         <div className='modal-backdrop show' style={{ display: 'block' }}></div>
-      </React.Fragment>
+      </>
     );
   }
 

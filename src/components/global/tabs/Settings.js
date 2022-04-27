@@ -39,7 +39,6 @@ class Settings_ extends React.Component {
     socket.emit('clearMap')
   }
   render(){
-    //console.log("Rendering Settings");
     let token = null
     if(this.props.settings.token!=undefined){
       token=<p id="settings_token">{this.props.settings.token}</p>
@@ -52,8 +51,8 @@ class Settings_ extends React.Component {
       discordtext= "Room linked to channel #"+link.channelname+" on server "+link.servername;
       discordbtn = <button className="btn" onClick={this.DisconnectDiscord}>Remove link to channel</button>
     }
-    //console.log(this.props)
-     const management = this.props.users.sort(U.compare).map(user => <ManagementlistUnit key={user.id} HandleRankChange={this.HandleRankChange} user={user} myrank={this.props.myrank}/>)
+
+    const management = this.props.users.sort(U.compare).map(user => <ManagementlistUnit key={user.id} HandleRankChange={this.HandleRankChange} user={user} myrank={this.props.myrank}/>)
                                                            
     return  <div id="manage" className="container tab-pane row">
             <div className="row">
@@ -216,7 +215,6 @@ class DiscordPopover extends React.Component {  ////PROPS: handleDelete, header
 }
 
 const mapStateToProps = store => {
-  //console.log(store) 
   let meta = store.meta
   return {
     users: store.users.users,

@@ -9,7 +9,7 @@ import cost from '../../../_static/cost';
 import tech from '../../../_static/techtree';
 import markers from '../../../_static/markers';
 import audio from '../../../_static/audio';
-console.log('Audio', audio)
+
 /*////PRIVATE EVENT TYPES:
   0 - TECH COMPLETED
   1 - ITEMS SUBMITTED TO LOGI REQUEST
@@ -28,7 +28,6 @@ class Events extends React.Component {  ////Component generation
   }
   
   componentDidUpdate(prevProps, prevState){
-    //console.log("Updated events",this.props,prevProps)
     let soundsArray = [/*{id:0,faction:"COLONIALS"},{id:1,faction:"WARDENS"}*/]
     for(var i=0;i<this.props.events.length;i++){
       let newEvent = this.props.events[i]
@@ -55,13 +54,11 @@ class Events extends React.Component {  ////Component generation
     }
   }
   handleSelect(obj,townname,region){
-  //console.log("event obj",obj)
     let position = U.convert(region,obj.x,obj.y)
      window.selecticon.ChangePosition(position)
    store.dispatch(A.selectObject("stockpiles",U.signature(obj),townname))
   }
   GetEventString(obj){
-    //console.log(obj)
     let datestring = new Date(JSON.parse(obj.date))
     function GetFaction(obj,reverse){
     if(obj.teamId=="WARDENS"){
@@ -81,7 +78,6 @@ class Events extends React.Component {  ////Component generation
     let faction = ""
     if(prevItem.teamId!=newItem.teamId){
       if(newItem.teamId=="NONE"){
-        //console.log("Checking flags",newItem.flags)
         if(newItem.flags&0x10){
           actionstring = <span className="eventlog_text_nuke">was nuked by </span>
           faction = GetFaction(prevItem,true)
@@ -133,10 +129,10 @@ class Events extends React.Component {  ////Component generation
       return null
     }
     let townname = U.GetTownName(obj.region,prevItem,this.props.static)
-    datestring = GetDateString(datestring) //OK
-    let regionName = RegionImages.regionlist[obj.region].name  //OK
+    datestring = GetDateString(datestring)
+    let regionName = RegionImages.regionlist[obj.region].name
     let totalstring = <span >{datestring}{regionName}: <b className="eventlog_town_name" onClick={()=>this.handleSelect(prevItem,townname,obj.region)}>{townname}</b> {actionstring}{faction}</span>
-    //console.log(totalstring)
+
     return <li className="event_log_line" key={"event"+obj.date}>{totalstring}</li>
   }
   
@@ -157,8 +153,9 @@ class Events extends React.Component {  ////Component generation
 class PrivateEvents extends React.Component {  ////Component generation
   constructor(props) {
     super(props);
-    this.GetEventString = this.GetEventString.bind(this)    //Function binding
+    this.GetEventString = this.GetEventString.bind(this)
   }
+
   shouldComponentUpdate(nextProps, nextState){
     if(JSON.stringify(this.props.events)!=JSON.stringify(nextProps.events)){
       return true
@@ -166,7 +163,6 @@ class PrivateEvents extends React.Component {  ////Component generation
     return false
   }
     GetEventString(obj){
-      //console.log("event obj",obj)
       let datestring =  GetDateString(new Date(JSON.parse(obj.date)))
       let actionstring =<span></span>
       switch(obj.type){
@@ -175,7 +171,6 @@ class PrivateEvents extends React.Component {  ////Component generation
           break;
         case 1:
           let packet = JSON.parse(obj.packet)
-         // console.log("Private event packet",packet)
           let username = <b>{U.GetUsername(this.props.users.users,packet.wip.author)}</b>
           let wiparray = []
           for(var i =0;i<packet.wip.request.length;i++){
@@ -183,7 +178,6 @@ class PrivateEvents extends React.Component {  ////Component generation
           wiparray.push(<span key={"wiparray"+obj.date+"|"+item.catid+"|"+item.itemid}>{item.crates}x <img style={{width:15,height:15}} src={cost.cost[item.catid][item.itemid].src}/> </span>)
           }
           let location = <img style={{width:15,height:15}} src='https://cdn.glitch.com/6393f3fd-16a7-4641-ae3d-994f8e7cea4e%2FIconStatusEncumberedRed.png?1549573551066' onClick={()=>store.dispatch(A.selectObject("requests",packet.request))} />
-         // console.log("wiparray",wiparray)
           actionstring = <span>{username} delivered {wiparray} to {location}</span>
           break;
         case 2:
@@ -201,12 +195,12 @@ class PrivateEvents extends React.Component {  ////Component generation
       return <li className="event_log_line" key={"privateevent"+obj.date}>{totalstring}</li>
   }
 render(){
-  //console.log("Rendering private event log")
   let eventlist = []
+
   if(this.props.events!=undefined){
     let eventArray = JSON.parse(JSON.stringify(this.props.events))
     eventArray.reverse()
-    //console.log("Private events",this.props)
+
     for(var i =0;i<30;i++){
       if(eventArray[i]==undefined){
         break;
@@ -226,9 +220,10 @@ const mapStateToProps = store => {
     static: staticdata
   }
 }
+
 const mapStateToPropsPrivate = store => {
   let events = store.events
-  //let staticdata = store.roominfo.static
+
   return {
     events: events.privateEvents,
     users: store.users,

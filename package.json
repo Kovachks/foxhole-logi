@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "foxhole-global",
   "version": "2.1.1",
   "description": "A simple Node app built on Express, instantly up and running.",
@@ -43,6 +44,8 @@
     "leaflet-rotatedmarker": "0.2.0",
     "leaflet-routing-machine": "3.2.12",
     "leaflet.control.layers.tree": "0.1.1",
+    "lodash": "^4.17.21",
+    "mysql": "^2.18.1",
     "nivo": "0.31.0",
     "node": "12.11.1",
     "node-flywaydb": "3.0.5",
@@ -95,7 +98,7 @@
     "winston": "3.3.3"
   },
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   },
   "repository": {
     "type": "git",

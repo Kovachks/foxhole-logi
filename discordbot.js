@@ -37,14 +37,13 @@ const regionlist = [
 try {
   client.discord = Discord;
   client.login(conf.discord.token)
-    .then (r => console.log('Discord connection success'))
+    .then (r => {})
     .catch(reason => logger.warn(`Could not connect to discord ${reason}`));
 } catch (err) {
-  console.log('Cant connect discord');
 }
 client.on('ready', () => {
   client.user.setActivity(`!fghelp`);
-  //console.log(`Ready to serve on ${client.guilds.size} servers, for ${client.users.size} users.`);
+
   client.channels.get('531113716905803777')
     .send('Bot Restarting');
 });
@@ -96,14 +95,13 @@ client.on('message', message => {
         let channelID = message.channel.id;
         if (message.channel.permissionsFor(message.member)
           .has('MANAGE_GUILD', false)) {
-          //console.log("Message")
-          //console.log(message)
+
           let link = {
             channelid: message.channel.id,
             channelname: message.channel.name,
             servername: message.channel.guild.name
-          };
-          //console.log("Registering channel",message.channel.name,message.channel.guild.name)
+          }
+
           let room = db.getRoomByToken(args[0], link);
           if (room == undefined) {
             message.channel.send('Error: Invalid token');
@@ -142,7 +140,7 @@ client.on('message', message => {
         }
       } catch (error) {
         message.channel.send('Error: Couldn\'t register channel. Channel doesn\'t exist or bot is lacking permissions');
-        //console.log(error)
+
       }
       break;
     case 'techtree':
@@ -191,7 +189,7 @@ client.on('message', message => {
 
 
 exports.cunt = function test(string) {
-  console.log('Discord module ' + string);
+
 };
 
 exports.disconnectDiscord = function (globalid, settings) {
@@ -260,9 +258,9 @@ exports.startOpTimer = function (global) {
 };
 
 exports.emitNotify = function (packet) {
-  //console.log("Packet",packet)
+
   let settings = JSON.parse(packet.global.settings);
-  //console.log(obj)
+
   let datestring = '' + packet.date;
 
   function GetFaction(obj, reverse) {
@@ -279,7 +277,6 @@ exports.emitNotify = function (packet) {
   let faction = '';
   if (prevItem.teamId != newItem.teamId) {
     if (newItem.teamId == 'NONE') {
-      //console.log("Checking flags",newItem.flags)
       if (newItem.flags & 0x10) {
         actionstring = 'was nuked by ';
         faction = GetFaction(prevItem, true);
@@ -376,10 +373,9 @@ exports.emitNotify = function (packet) {
       }
   }
   //let regionName = RegionImages.regionlist[obj.region].name  //OK
-  //console.log(datestring,regionName,townname,actionstring)
+
   //let totalstring = <span>{datestring}{regionName}: <b className="eventlog_town_name" onClick={()=>this.handleSelect(prevItem,townname,obj.region)}>{townname}</b> {actionstring}{faction}</span>
 
-  //console.log(totalstring)
   const embed = {
     'title': 'Marked map event',
     'color': 0xed0707,

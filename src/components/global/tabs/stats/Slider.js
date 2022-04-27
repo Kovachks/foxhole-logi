@@ -6,7 +6,7 @@ const Range = createSliderWithTooltip(RC.Range);
 const Handle = RC.Handle;
 
 const handle = (props) => {
-  //console.log("Handle props",props)
+
   let value = new Date(props.value)
   return (
     <RCTooltip.default
@@ -31,7 +31,7 @@ class Slider extends React.Component { //Conquest X, Day Y Underway since
      this.onChangeSlider= this.onChangeSlider.bind(this)
    }
     static getDerivedStateFromProps(props, state){
-      //console.log("Deriving slider")
+
       if(props.time!=state.prevSlider){
       return {prevSlider:props.time,slider:props.time}
       }else return {}
@@ -39,27 +39,24 @@ class Slider extends React.Component { //Conquest X, Day Y Underway since
   
   shouldComponentUpdate(nextProps, nextState){
     //let checkstart = Date.now()
-    //console.log("this state",this.state.slider,"next state",nextState.slider)
+
       if(this.state.slider!=nextState.slider){
         return true
       }
       if(JSON.stringify(this.props)==JSON.stringify(nextProps)){
-        //console.log("Checked slider",Date.now()-checkstart) 
+
         return false
       }
         return true
       }
   
   onChangeSlider(e){
-    //console.log(e)
     let value= e
-    //console.log("Changing slider",value)
     this.setState({
       slider:value})
     }
   
   render(){
-    //console.log("Slider state",this.state.slider)
     let max = Date.now()
     if(this.props.previous){
       max=this.props.EndTime

@@ -27,11 +27,10 @@ class StateOfTheWar extends React.Component{
     nextProps.timerOn&&(JSON.stringify(nextProps.timelinesnap)!=JSON.stringify(this.props.timelinesnap))){
       return true
     }
-    //console.log("Checked state of the war false",Date.now()-checkstart)
+
     return false
   }
 render(){
-  //console.log("State of the war props",this.props)
   let percentages =[0,0,0]
   let state = this.props.state
   let counters = this.props.counters
@@ -41,15 +40,14 @@ render(){
     try{
    state = timelinesnap.spec.sum
     counters = [timelinesnap.total[1],timelinesnap.total[2],timeline.total[0][0]+timeline.total[0][1]+timeline.total[0][2]]
-      //console.log("State of the war state", state)
     }catch(err){
-      console.log("State of the war err",err)
+      throw new Error(err)
     }
   }
   percentages[0] = (counters[0]/counters[2])*100;        percentages[1] = (counters[1]/counters[2])*100;
   percentages[2] = {width:(100-percentages[0]-percentages[1])+"%"}
   percentages[0]= {width:percentages[0]+"%"};            percentages[1]= {width:percentages[1]+"%"}
-  return <React.Fragment>
+  return <>
         <div className="progress" id="stats_progress">
       <div className="progress-bar collie-bg" style={percentages[0]}>
         {counters[0]}
@@ -80,7 +78,7 @@ render(){
         </tr>  */}
         </tbody></table>
         </div>
-        </React.Fragment>
+        </>
 }}
 
   function GetCondition(url,number,number2){

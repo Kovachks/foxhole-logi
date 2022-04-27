@@ -12,21 +12,21 @@ export function GetNotes(obj){  ////GET NOTES TEXT FOR TOOLTIP
       
     }
        let text = obj.notes.replace(/(?:\r\n|\r|\n)/g, '<br>')
-  return(<React.Fragment>
+  return(<>
       <p>{obj.notes}</p>
-    </React.Fragment>)
+    </>)
   }
 
 export function GetUpdate(obj){/// GET UPDATE TEXT FOR TOOLTIP
     if(obj==undefined){
-     return(<React.Fragment>
+     return(<>
         Last Update: <br /> None
-     </React.Fragment>) 
+     </>) 
      }
-     return(<React.Fragment>
+     return(<>
         Last Update: <br />
        {facilitytypes.GetDate(obj.lastupdate)}
-     </React.Fragment>) 
+     </>) 
   }
 
 export function GetLine(array,index,facilities){ ////GET FACILITY TOOLTIP

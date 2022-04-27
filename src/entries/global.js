@@ -58,7 +58,7 @@ $('[data-toggle="popover"]').popover()
 })
 
 function App (){
-  return(<React.Fragment>
+  return(<>
       <TabsPanel />
             <div className="row" id="general_container_row">    
           <UserList />
@@ -126,10 +126,10 @@ function App (){
       <div id="mastercontainer">
         
       </div>
-      </React.Fragment>)
+      </>)
 }
 //////////////////////////////////////////////////////////
 
 store.subscribe(()=>{
-  //console.log("Updated store",store.getState());
+
 })

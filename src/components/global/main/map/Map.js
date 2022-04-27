@@ -28,7 +28,6 @@ class MapCore extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    //console.log("Map props",this.props,nextProps)
     if (this.props.tab.tab != 0 && nextProps.tab.tab == 0) {
       return true;
     }
@@ -239,7 +238,7 @@ class GlobalMap extends React.Component {
     }
 
     return (
-      <React.Fragment>
+      <>
 
         <L.Map ref='worldmap'
                onZoomend={(event) => {
@@ -384,14 +383,13 @@ class GlobalMap extends React.Component {
           <SelectIcon ref={(e) => {
             window.selecticon = e;
           }}/>
-        </L.Map></React.Fragment>
+        </L.Map></>
     );
   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const mapStateToProps = store => {
-  //console.log(store)
   return {
     roominfo: store.roominfo,
     tab: store.tab,

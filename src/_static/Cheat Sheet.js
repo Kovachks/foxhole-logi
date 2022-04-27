@@ -33,7 +33,6 @@ class Name extends React.Component {  ////Component generation
 }
 /////////////////////////////////////////////////
 const mapStateToProps = store => {    //Importing props from store
-  //console.log(store) 
   return {
     roominfo: store.roominfo,
     tab: store.tab,

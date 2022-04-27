@@ -17,22 +17,22 @@ export class Icon extends React.Component {
       return null;
     }
     return (
-      <React.Fragment>
+      <>
         <p className="tooltip_notes">{this.props.private.notes}</p>
-      </React.Fragment>
+      </>
     );
   }
 
   GetUpdate() {
     if (this.props.private === undefined) {
-      return (<React.Fragment>
+      return (<>
         Last Update: <br/> None
-      </React.Fragment>);
+      </>);
     }
-    return (<React.Fragment>
+    return (<>
       Last Update: <br/>
       {facilitytypes.GetDate(this.props.private.lastupdate)}
-    </React.Fragment>);
+    </>);
 
   }
 
@@ -44,17 +44,13 @@ export class Icon extends React.Component {
       storage: ''
     };
     if (this.props.type === 'town') {
-      // console.log("Selecting town",this.props.roominfo.dynamic)
-      //console.log(this.props.roominfo.dynamic)
       for (var i = 0; i < this.props.roominfo.dynamic.length; i++) {
         let region = this.props.roominfo.dynamic[i];
         if (region.regionId === this.props.regionId) {
-          //console.log("Selected region",region)
           for (var j = 0; j < region.data.mapItems.length; j++) {
             let item = region.data.mapItems[j];
             if (item.iconType === 17 || item.iconType === 34 || item.iconType === 33) {
               let distance = Math.sqrt(Math.pow(this.props.obj.y - item.y, 2) + Math.pow(this.props.obj.x - item.x, 2));
-              // console.log("Near facilities",distance,item)
               let signature = U.signature(item);
               if (distance < 0.092) {
                 switch (item.iconType) {
@@ -80,7 +76,6 @@ export class Icon extends React.Component {
   }
 
   GetEventString(obj) {
-    //console.log(obj)
     let datestring = new Date(JSON.parse(obj.date));
 
     function GetFaction(obj, reverse) {
@@ -105,7 +100,6 @@ export class Icon extends React.Component {
     let faction = '';
     if (prevItem.teamId !== newItem.teamId) {
       if (newItem.teamId === 'NONE') {
-        //console.log("Checking flags",newItem.flags)
         if (newItem.flags & 0x10) {
           actionstring = 'was nuked by ';
           faction = GetFaction(prevItem, true);
@@ -174,14 +168,12 @@ export class Icon extends React.Component {
       return string;
     }
 
-    //console.log(datestring,regionName,townname,actionstring)
     let totalstring = <span>{actionstring}<br/>{faction} {datestring}</span>;
-    //console.log(totalstring)
+
     return <p>{totalstring}</p>;
   }
 
   render() {
-    //console.log(this.props);
     let addon_victory = '';
     let addon_hq = null;
     let pulse = null;
@@ -209,7 +201,6 @@ export class Icon extends React.Component {
           addon_victory = markers.GetVictoryAddon(obj, position);
         }
         //addon2 = <L.Circle center={position} fillColor="red" color="red" fillOpacity={0.2}  radius={RegionImages.ratio*200}  zIndexOffset={2000} />
-        //console.log("Events",this.props)
         let eventstring = null;
         let foundevent = false;
         for (var i = 0; i < this.props.events.length; i++) {
@@ -221,7 +212,6 @@ export class Icon extends React.Component {
             let newItem = JSON.parse(event.newItem);
 
             if (this.props.obj.x === item.x && this.props.obj.y === item.y && !foundevent) {
-              //console.log("Found event",this.props.name,event)
               eventstring = this.GetEventString(event);
               foundevent = true;
             }
@@ -239,7 +229,6 @@ export class Icon extends React.Component {
               break;
             }
           }
-          //console.log("Timediff",timediff)
         }
 
         tooltip = <L.Tooltip className="tooltip" opacity={1}>
@@ -264,7 +253,7 @@ export class Icon extends React.Component {
     }
     let objicon = markers.GenerateIcon(obj);
     return (
-      <React.Fragment>
+      <>
         {addon_victory}
         {addon_hq}
         {pulse}
@@ -272,7 +261,7 @@ export class Icon extends React.Component {
                   onClick={(e) => this.handleSelect(e, position)} zIndexOffset={400}>
           {tooltip}
         </L.Marker>
-      </React.Fragment>
+      </>
     )
 
   }

@@ -20,13 +20,13 @@ const logger = conf.logger
 const create_global_table = SQLite.prepare("CREATE TABLE IF NOT EXISTS global (id TEXT PRIMARY KEY, admin TEXT, settings TEXT, techtree TEXT, fobs TEXT, requests TEXT, misc TEXT, arty TEXT, squads TEXT, refinery TEXT, production TEXT, storage TEXT, stockpiles TEXT, logi TEXT, events TEXT);");
 const create_users_table = SQLite.prepare("CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, salt TEXT, name TEXT, avatar TEXT);");
 // //SETTINGS: name, side, channel, secure, password
-const create_userGlobal_table = SQLite.prepare("CREATE TABLE IF NOT EXISTS userglobal (id TEXT PRIMARY KEY, userid TEXT, globalid TEXT, rank INT, role INT, FOREIGN KEY (userid) REFERENCES users(id), FOREIGN KEY (globalid) REFERENCES global(id));");
+const create_user_room_table = SQLite.prepare("CREATE TABLE IF NOT EXISTS user_room (id TEXT PRIMARY KEY, userid TEXT, globalid TEXT, rank INT, role INT, FOREIGN KEY (userid) REFERENCES users(id), FOREIGN KEY (globalid) REFERENCES global(id));");
 const create_events = SQLite.prepare("CREATE TABLE IF NOT EXISTS events (region INT, date TEXT, prevItem TEXT, newItem TEXT);")
 
 logger.info('Creating tables...')
 create_global_table.run()
 create_users_table.run()
-create_userGlobal_table.run()
+create_user_room_table.run()
 create_events.run()
 logger.info('Tables created.')
 
@@ -49,12 +49,12 @@ try {
 
 //You should have gone for the HEAD
 //NO
-//sql.prepare("DROP TABLE userglobal;").run();
+//sql.prepare("DROP TABLE user_room;").run();
 //sql.prepare("DROP TABLE users;").run();
 //sql.prepare("DROP TABLE global;").run();
 //sql.prepare("CREATE TABLE warhistory (warnumber INT, warstats TEXT, events TEXT, reports TEXT, startpoint TEXT);").run();
 exports.wipe = function (){
-  SQLite.prepare("DELETE FROM userglobal;").run();
+  SQLite.prepare("DELETE FROM user_room;").run();
   SQLite.prepare("DELETE FROM global;").run();
   //sql.prepare("DELETE FROM towns;").run();
   //sql.prepare("DELETE FROM forts;").run();
@@ -68,5 +68,5 @@ exports.wipe = function (){
 
 
 exports.cunt = function test(string){
-console.log("One-time command module "+string);
+
 }

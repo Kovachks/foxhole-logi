@@ -87,7 +87,7 @@ export class Refinery extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <>
         <p>Material Refinement</p>
         <div className="row">
           <div id="ref_col_container" className="col-sm-12 col-lg-3 nomargin">
@@ -101,7 +101,7 @@ export class Refinery extends React.Component {
             <RefTotalTable />
           </div>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }
@@ -142,24 +142,20 @@ class RefinerySubmitMenu_ extends React.Component {
     }
   }
   handleTownNameChange(position, region, signature) {
-    //console.log(position,region)
     let coords = { x: position[1], y: position[0] };
     let name = U.GetTownName(region, position, this.props.static);
     this.setState({ townname: name, signature: signature });
   }
   handleResourceChange(i) {
-    //console.log(i)
     this.setState({
       resource: i
     });
     this.refs.amount_input.focus();
   }
   handleOrderFilterChange(e) {
-    //console.log(e.target.value)
     this.setState({ orderfilter: e.target.value });
   }
   handleSelectOrder(packet) {
-    console.log(this.props.refinery[packet.signature]);
     if (
       this.props.refinery[packet.signature].orders[packet.index].author ==
       window.steamid
@@ -178,7 +174,6 @@ class RefinerySubmitMenu_ extends React.Component {
           refineryStatic[this.state.resource].ratio
       );
       let finishtime = new Date(new Date().getTime() + time);
-      //console.log(new Date(finishtime))
       let result = Math.floor(
         this.state.amount / refineryStatic[this.state.resource].ratio
       );
@@ -260,7 +255,6 @@ class RefinerySubmitMenu_ extends React.Component {
         object: refinery,
         key: packet.signature
       });
-      console.log("Ref values", this.state.subtract_value, order.amount);
       if (this.state.subtract_value > order.amount) {
         this.setState({ subtract_value: order.amount });
       }
@@ -288,7 +282,6 @@ class RefinerySubmitMenu_ extends React.Component {
   }
 
   render() {
-    //console.log("Rendering refinery submit menu")
     let maxsubtract = 0;
     if (this.state.selectedorder.tableindex != -1) {
       maxsubtract = this.props.refinery[this.state.selectedorder.signature]
@@ -372,7 +365,7 @@ class RefinerySubmitMenu_ extends React.Component {
         }
       }
     }
-    //console.log("Ref orders",orders)
+
     function compareRef(a, b) {
       if (
         new Date(a.props.order.finishDate) > new Date(b.props.order.finishDate)
@@ -397,7 +390,7 @@ class RefinerySubmitMenu_ extends React.Component {
       orders.sort(compareRef);
     }
     return (
-      <React.Fragment>
+      <>
         <div id="ref_submit_container">
           <div id="ref_select_table">
             <table>
@@ -498,7 +491,7 @@ class RefinerySubmitMenu_ extends React.Component {
             <tbody>{orders}</tbody>
           </table>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }
@@ -537,9 +530,9 @@ class RefineryOrder_ extends React.Component {
     ) {
       trclass = "ref_order_tr ref_order_tr_selected";
     }
-    //console.log("Rendering refinery order")
+
     let order = this.props.order;
-    //console.log("Ref order props",this.props)
+
     //let removebutton = null
     let timeclass = "ref_order_table_timetd";
     if (
@@ -600,7 +593,6 @@ class RefineryMap extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    //console.log("Map props",this.props,nextProps)
     if (this.props.tab.tab != 2 && nextProps.tab.tab == 2) {
       return true;
     }
@@ -610,7 +602,6 @@ class RefineryMap extends React.Component {
     return true;
   }
   render() {
-    //console.log("Rendering refinery map")
     const bounds = RegionImages.bounds;
     let refineries = [];
     if (this.refs.refmap != undefined) {
@@ -684,7 +675,6 @@ class SelectIcon_ extends React.Component {
     this.SelectPrivate = this.SelectPrivate.bind(this);
   }
   ChangePosition(position, region, obj, signature) {
-    //console.log("refmap",this.props.refmap)
     let coords = position;
     if (position.y != undefined) {
       coords = [position.y, position.x];
@@ -694,7 +684,7 @@ class SelectIcon_ extends React.Component {
   }
   SelectPrivate(action) {
     let obj = {};
-    //console.log("Select icon",action)
+
     if (action.townname == "misc") {
       obj = this.props.private.misc[action.objtype][action.signature];
     } else {
@@ -733,7 +723,7 @@ class RefTotalTable_ extends React.Component {
           obj = reftotal[userid];
         }
       }
-      console.log(value.toString()[0] == 0);
+
       if (value.length > 1 && value[0] == 0) {
         value = value.slice(1);
       }
@@ -870,7 +860,6 @@ class RefTotalTable_ extends React.Component {
 }
 ///////////////////////////////////////////////////////
 const mapStateToPropsRefTotal = store => {
-  //console.log(store)
   let roominfo = store.private;
   return {
     users: store.users,
@@ -879,7 +868,6 @@ const mapStateToPropsRefTotal = store => {
 };
 
 const mapStateToProps = store => {
-  //console.log(store)
   let roominfo = store.roominfo;
   return {
     dynamic: roominfo.dynamic,
@@ -888,7 +876,6 @@ const mapStateToProps = store => {
   };
 };
 const mapStateToPropsRefineryOrder = store => {
-  //console.log(store)
   let privateinfo = store.private;
   return {
     users: store.users,
@@ -897,7 +884,6 @@ const mapStateToPropsRefineryOrder = store => {
   };
 };
 const mapStateToPropsSubmit = store => {
-  //console.log(store)
   let roominfo = store.roominfo;
   let privateinfo = store.private;
   return {
@@ -905,15 +891,14 @@ const mapStateToPropsSubmit = store => {
     selected: store.selected,
     refinery: privateinfo.refinery,
     reftotal: privateinfo.misc.reftotal
-  };
-};
+  }
+}
 const Map = connect(mapStateToProps)(RefineryMap);
 const mapStateToPropsSelectIcon = store => {
-  //console.log(store)
   return {
     private: store.private
-  };
-};
+  }
+}
 const RefineryOrder = connect(mapStateToPropsRefineryOrder)(RefineryOrder_);
 const RefinerySubmitMenu = connect(
   mapStateToPropsSubmit,
